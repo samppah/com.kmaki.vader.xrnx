@@ -307,7 +307,7 @@ function sleep(time_ms)
 end
 
 function build_notifier(observable, function_to_attach, notifier_table)
-    -- Wraps add_notifier() in if :has_notifier
+    -- Wraps native add_notifier() in if :has_notifier
     if not observable:has_notifier(function_to_attach) then
         observable:add_notifier(function_to_attach) 
     end
@@ -319,7 +319,7 @@ function build_notifier(observable, function_to_attach, notifier_table)
 end
 
 function clear_notifier(observable, function_to_clear, notifier_table)
-    -- Wraps remove_notifier() in if :has_notifier
+    -- Wraps native remove_notifier() in if :has_notifier
     if observable:has_notifier(function_to_attach) then
         observable:remove_notifier(function_to_attach) 
     end
@@ -353,18 +353,17 @@ end
 ----------------------------------------------------
 
 local function directives_dispatch()
-    -- The main handler function. Every parsing,
-    -- processing action is dispatched through this.
-    -- Functions so that vader.directives -list is
-    -- filled, and directives_trigger() is called.
-    -- That will start the process of emptying the
-    -- list to the point of no directives left.
+    --[[
+    The main program flow handler function. Every parsing, processing action is
+    dispatched through this.  Functions so that vader.directives -list is
+    filled, and directives_trigger() is called.  That will start the process of
+    emptying the list to the point of no directives left.
+    --]]
 
     --vader.logs.debug:entry("Dispatching...", 1)
 
     -- Error catching
-
-    -- no error catching yet
+    -- NOTE:no error catching yet
     ----------
     local continue_loop = Switch()
     local safety_counter = Counter()
@@ -373,13 +372,15 @@ local function directives_dispatch()
     -- Local helper functions
     -------------------------------------------
     local function handle_error(error_msg)
-        -- This handles errors catched in the dispatcher calls
-        -- vader.DEBUG_CRITICAL_ERROR and
-        -- vader.DEBUG_UNHANDLED_ERROR 
-        -- are assumed to be set on their right states
-        --
+        --[[
+        This handles errors catched in the dispatcher calls
+        vader.DEBUG_CRITICAL_ERROR and vader.DEBUG_UNHANDLED_ERROR are assumed
+        to be set on their right states
+        --]]
+        
         -- Add last history item
         error_msg = vader.logs.history:item(1).string.."\n"..error_msg
+
         -- Add call traceback on criticals
         if vader.DEBUG_CRITICAL_ERROR == true then
             -- Edit msg
@@ -404,13 +405,15 @@ local function directives_dispatch()
     -------------------------------------------
     -- THE MAIN DISPATCHER LOOP
     -------------------------------------------
-    -- Get the message that starts the snowball
+    -- Get the message that starts the parse-process snowball
     local input = vader.logs.history:bottom().string
     local output = ""
     while (#vader.directives > 0) and continue_loop.state and safety_counter.count < vader.LOOP_SAFETY_LIMIT do
-        -- This while loop will run until all the directives
-        -- (including those that have been added by other directives)
-        -- run out, or the safety counter reaches vader.LOOP_SAFETY_LIMIT
+        --[[
+        This while loop will run until all the directives (including those that
+        have been added by other directives) run out, or the safety counter
+        reaches vader.LOOP_SAFETY_LIMIT
+        --]]
         
         -- Add round count
         safety_counter:inc()
@@ -427,15 +430,18 @@ local function directives_dispatch()
         -- GO!
         --Call task_function(directive) in protected mode, store results in AStack object
         local directive_call = function() return task_function(directive) end
-        local return_values = AQueue("return_values", { xpcall(directive_call, handle_error) }, true ) --true is for is_sparse argument in AList:__init()
+        local return_values = AQueue("return_values", { xpcall(directive_call, handle_error) }, true ) --NOTE:true is for is_sparse argument in AList:__init()
         --Check for directive_call success, which will be the first, discardable return value
         if return_values:pop() ~= false then
-            --Function exited with no errors, deal with it
+            --[[
+            CASE: Function exited with no errors, deal with it
+            --]]
+            -- Handle the directive object
             vader.directives:finish_and_remove()
             -- Handle log
             vader.logs.main:entry("DIRECTIVE "..directive_index.."/"..#vader.directives..":"..directive.name..vader.LOG_DEFAULT_SEPARATOR.."Finished.", 0)
             --[[
-            --this is outdated!
+            --NOTE:This commented section is outdated!
             -- If there are remarks, publish them in logs
             if notes then
                 -- Publish notes
@@ -444,17 +450,26 @@ local function directives_dispatch()
                 end
             end
             --]]
+            
             -- Reset flags for default, for any next one
             vader.DEBUG_CRITICAL_ERROR = true
             vader.DEBUG_UNHANDLED_ERROR = true
             vader.DEBUG_DEV_TEST = false
         else
-            --Function exited with an error
-            --handle errors in a dedicated local function, pass error message,
-            --which will be return value 2
-            --Get the message as output value
-            --output = return_values:item(1) 
-            -- Check for critical errors (critical error == not a 'syntax error')
+            --[[
+            CASE: Function exited with an error
+            handle errors by type, pass error message,
+            which will be return value 2
+            --]]
+            
+            -- Check for a critical error
+            --[[
+            A critical error is not a 'vader syntax error'.
+            This means that it's something internal that has
+            gone wrong, and the error is not a bad input.
+            Critical is something that is caught with
+            vader_error() or vader_assert().
+            --]]
             if vader.DEBUG_CRITICAL_ERROR then
                 vader.logs.main:entry("CRITICAL ERROR")
                 -- Check if execution is to be stopped on criticals
@@ -464,7 +479,13 @@ local function directives_dispatch()
                     error(return_values:pop())
                 end
             end
-            -- Check for unexpected errors
+
+            -- Check for unhandled errors
+            --[[
+            An unhandled error is something that was not caught
+            with a vader_error() or vader_assert(). In other words,
+            something is now very wrong with vader code.
+            --]]
             if vader.DEBUG_UNHANDLED_ERROR then
                 vader.logs.main:entry("UNHANDLED ERROR")
                 -- Check if execution is to be stopped on unhandled errors
@@ -474,14 +495,17 @@ local function directives_dispatch()
                     error(return_values:pop())
                 end
             end
-            -- Reset flags for default, for any next one
+
+            -- After handling, reset error type flags for default for following errors
             vader.DEBUG_CRITICAL_ERROR = true
             vader.DEBUG_UNHANDLED_ERROR = true
             vader.DEBUG_DEV_TEST = false
-            --Exit dispatching loop, clear it
+
+            --Exit dispatching loop, clear directives list
             vader.directives:clear()
             continue_loop:off()
             break
+
         end
         
         -- Store latest return value as the output
@@ -500,7 +524,7 @@ local function directives_dispatch()
     -- Set processing cursor back to nil
     vader.cursor = nil
 
-    -- Reset flags for default, for any next one
+    -- Reset error type flags for default for following errors
     vader.DEBUG_CRITICAL_ERROR = true
     vader.DEBUG_UNHANDLED_ERROR = true
     vader.DEBUG_DEV_TEST = false
@@ -513,13 +537,22 @@ local function directives_dispatch()
     -- Generate output value
     -- placeholder for number output format
     if type(output) == "boolean" then
+        --[[
+        CASE: command output type is a boolean
+        --]]
+        
         if output == true then
-            output = "."
+            output = "." --TODO: an option and default string for this type output, just as ACT_STRING
         else
-            --this should never happen.
-            output = "not cool, mr. lobster. not cool."
+            --NOTE: this should never happen. Commands exited with false should be catched by error handling.
+            output = "Command output was false - something is wrong"
         end
+
     elseif type(output) == "number" then
+        --[[
+        CASE: command output type is a number
+        --]]
+
         --TODO: this can be optimized by getting this out of here,
         --and only generating the formatstring when it changes (if it changes)
         local format_code = vader.OUTPUT_NUMBER_FORMAT or vader.OUTPUT_DEFAULT_NUMBER_FORMAT
@@ -544,9 +577,21 @@ local function directives_dispatch()
             -- go over if chars still left
             at:inc()
         end
+
         output = string.format(number_formatstring, unpack(formatstring_args))
+
     else
-        output = ""
+        --[[
+        CASE: command output is not handled
+            -Nil
+            -String
+            -Table
+            -Any object
+            -etc.
+        --]]
+
+        output = "," --TODO: an option and default string for this type output, just as ACT_STRING
+
     end
 
     -- Output main out message
@@ -562,10 +607,17 @@ local function directives_dispatch()
 end
 
 function directives_trigger()
-    -- This is called when the vader.flags.pending_toggle -value is ALTERED.
-    -- NO IT IS NOT! THAT'S OLD INFO. THAT MAKES ROOM FOR
-    -- NOTIFIER FEEDBACK LOOP. OR. WAIT... IS IT?
-    -- This further evaluates need to dispatch
+    --[[
+    This is called when the vader.flags.pending_toggle -value is ALTERED.
+
+    NOTE:
+    NO IT IS NOT! THAT'S OLD INFO. THAT MAKES ROOM FOR
+    NOTIFIER FEEDBACK LOOP. OR. WAIT... IS IT?
+    TODO:Sort this mess out.
+
+    This further evaluates need to dispatch
+
+    --]]
     if #vader.directives == 0 then
         -- false alarm (log this?) TODO
         return false
@@ -583,8 +635,11 @@ print(string.format("%s %3.2f - Command line for renoise. Initialized at %s", va
 
 
 
--- Init submodules (pass reference to global root node)
 local function boot_submodules(global_root_node)
+    --[[
+    Each submodule has a global "boot_<submodule_name>" -function
+    that has to do stuff at tool boot.
+    --]]
     boot_gui(global_root_node)
     boot_output(global_root_node)
     boot_classes(global_root_node)
@@ -593,23 +648,34 @@ local function boot_submodules(global_root_node)
     boot_process(global_root_node)
     boot_macro(global_root_node)
 end
+
+--Init submodules
 boot_submodules(vader)
+
+--Init displays
 init_displays()
+
+--Build command prompt GUI
 build_cmd_prompt_gui()
 
--- Set notifier to handle renoise.song() -pointer
+-- Setup notifier to handle renoise.song() -pointer
 link_rs = function()
     rs=renoise.song()
     boot_submodules(vader)
 end
+
 build_notifier(renoise.tool().app_new_document_observable, link_rs)
 
+--------------
 -- Create logs
+--------------
 
 -- Main log
 vader.logs.main = ALog("Main Log", vader.displays.home_dump, 0)
+
 -- Main out.
 vader.logs.out = ALog("Main output", vader.displays.statusbar, 0, 1)
+
 -- Debug log
 local dbgoutput
 if vader.DEBUG_MODE == true then
@@ -618,12 +684,16 @@ else
     dbgoutput = vader.displays.no_display
 end
 vader.logs.debug = ALog("Debug Log", dbgoutput, 0)
+
 -- Active_task log
 vader.logs.active_task = ALog("active_task", vader.displays.no_display, 3)
+
 -- Warnings log
 vader.logs.warnings = ALog("Warnings Log", vader.displays.warning_dlg, 0)
+
 -- Errors log
 vader.logs.errors = ALog("Errors Log", vader.displays.error_dlg, 0)
+
 -- Command line history 
 vader.logs.history = ALog("Command line history", vader.displays.no_display, 0)
 vader.logs.history:pop() --remove the log init entry
@@ -645,8 +715,10 @@ local function init_submodule_logs(global_root_node)
 end
 init_submodule_logs(vader)
 
+
 -- Persistent prompt settings, global node
--- TODO
+-- TODO:Find out what the hex this was..
+
 
 -- Main process flags
 vader.flags = renoise.Document.create("Main_flags") {
@@ -655,11 +727,11 @@ vader.flags = renoise.Document.create("Main_flags") {
 }
 --build_notifier(vader.flags.pending_toggle, directives_trigger)
 
--- Main process list
+-- Init main process list for program control flow
 vader.directives = VaderDirectiveList("Main_directive_list")
 
 ----------------------------------------------------
--- Keybindings
+-- Setup tool Keybindings
 ----------------------------------------------------
 
 renoise.tool():add_keybinding {
@@ -770,6 +842,7 @@ print("!!!!")
 trauau:
 dump_recursive()
 --]]
+
 if vader.DEBUG_MODE then
     require "developer_test"
 end
