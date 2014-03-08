@@ -48,32 +48,43 @@ local ok,err = manifest:load_from("manifest.xml")
 
 -- renoise.song() placeholder
 local rs
+
 -- link_rs() -function placeholder
 local link_rs
+
 function get_rs()
-    -- This can be called by submodules to get the rs-reference
+    -- This can be called by submodules to get the
+    -- renoise.song() -reference, to be set later
     return rs
 end
 
 -- Tool global root node (everything under vader will be 'global')
 local vader = table.create()
+
 -- Lexicon main table
 vader.lex = table.create()
+
 -- Macros main table
 vader.macro_shortcuts = table.create()
+
 -- Scripting Tool Preferences (preferences.xml)
 vader.preferences = renoise.Document.create("ScriptingToolPreferences") {
     dummy = "dummy"
 }
+
 -- GUI placeholders
 vader.dialog_cmd = nil
 vader.dialog_devtest = nil
+
 -- Global viewbuilder reference
 vader.vb = renoise.ViewBuilder()
+
 -- Global displays reference
 vader.displays = table.create()
+
 -- Main notifier table
 vader.notifiers = table.create()
+
 -- Main logs table
 vader.logs = table.create() -- Main log placeholder. This collects all sublogs.
 do
@@ -87,8 +98,10 @@ do
     -- Active task log placeholder
     vader.logs.active_task = nil
 end
+
 -- Main processing cursor placeholder
 vader.cursor = nil
+
 ----------------------------------------------------
 -- Constants, options, flags, et cetera
 ----------------------------------------------------
@@ -96,9 +109,11 @@ vader.cursor = nil
 vader.TOOL_NAME = manifest:property("Name").value
 vader.TOOL_ID = manifest:property("Id").value
 vader.TOOL_VERSION = manifest:property("Version").value
+
 -- Internal / Technical
 vader.LOOP_SAFETY_LIMIT = 10 -- Iteration max count for while loops to prevent lockups
 vader.NIL_PLACEHOLDER_IN_TABLES = "NIL_PLACEHOLDER_IN_TABLES" --Workaround for a specific Lua issue
+
 -- Debug options
 vader.DEBUG_MODE = true --a general "Debug mode is on" -flag
 vader.DEBUG_CRITICAL_ERROR = true --a global flag for error handling
@@ -106,27 +121,33 @@ vader.DEBUG_UNHANDLED_ERROR = true --a global flag for error handling
 vader.DEBUG_BREAK_ON_CRITICAL_ERRORS = false --a global switch to go 'full stop' on critical vader errors
 vader.DEBUG_BREAK_ON_UNHANDLED_ERRORS = true --a global switch to go 'full stop' on native Lua (unexpected) errors
 vader.DEBUG_DEV_TEST = false --a global flag for separating messages from the devtes gui from normal messages
+
 -- Keybind names
 vader.KEYBIND_NAME_OPEN_CMD_PROMPT = "Open command prompt"
 vader.KEYBIND_NAME_OPEN_MACRO_PROMPT = "Open macro prompt"
 vader.KEYBIND_NAME_REPEAT_LAST = "Repeat history item 1"
 vader.KEYBIND_NAME_REPEAT_LAST2 = "Repeat history item 2"
+
 -- Logging
 vader.LOG_DEFAULT_SEPARATOR = " - "
 vader.LOG_INIT_VERBOSITY = 10 -- Verbosity level of log initialization messages
 vader.LOG_DEFAULT_MAX_LEN = 999 -- Default max number of items per log (can be temporarily over this)
+
 -- History
 vader.START_OF_HISTORY_TEXT = ""
 vader.END_OF_HISTORY_TEXT = "^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+
 -- Prompt
 vader.PROMPT_MODE_EDIT = ">>>"
 vader.PROMPT_MODE_BROWSE = ""
+
 -- GUI
 vader.PROMPT_TOTAL_WIDTH = 330
 vader.PROMPT_MODE_WIDTH = 30
 vader.PROMPT_HOME_DUMP_HEIGHT = 200
 vader.PROMPT_HOME_DUMP_ITEMS = 5 --number of items kept in home dump
 vader.PROMPT_CLOSE_AFTER_FINISH = true
+
 -- Displays
 vader.DEFAULT_DISPLAY = "no_display"
 vader.STATUSBAR_ACT_STRING = nil-- This updates on each display, alternating between the table values
@@ -136,9 +157,16 @@ vader.STATUSBAR_ACT_STRING_TABLE = {
     ".:.",
     "..:",
 }
+--[[
+The reason to have this alternating "ACT_STRING", is to have a way to
+notify user if (s)he enters the exact same command, which would output
+the exact same status message.
+--]]
+
 -- Output
 vader.OUTPUT_NUMBER_FORMAT = "hif"
 vader.OUTPUT_DEFAULT_NUMBER_FORMAT = "i"
+
 --[[
 OUTPUT NUMBER FORMAT is a string that defines the
 main output number format. The three choices are
@@ -153,6 +181,7 @@ function update_statusbar_message_prefix()
     -- This is 'live' so it must be wrapped into an update function.
     vader.STATUSBAR_MESSAGE_PREFIX = vader.TOOL_NAME.." "..vader.STATUSBAR_ACT_STRING.." "
 end
+
 -- Processing
 vader.PROCESS_MOVE_CURSOR = true --move renoise cursor when processing
 vader.PROCESS_IGNORE_WRONG_COLTYPE = true --describes how processing behaves on note&effect columns and 'current' value.
@@ -168,15 +197,20 @@ vader.PROCESS_MAKE_SELECTION = false --make a pattern selection over the target 
 vader.PROCESS_MAKE_LOOP = false --set loop start, end, over the target lines area
 
 ----------------------------------------------------
--- Error handling functions
+-- Error handling
 ----------------------------------------------------
+vader.ERROR_UNDEFINED_MESSAGE = "NOOOOooooooo!"
 
 function vader_error(error_msg, is_syntax_error)
-    -- Raises an handled error to be handled by directives_dispatch()
-    -- is_syntax_error is a boolean that describes
-    -- the situation of a 'syntax_error' type of thing.
+    --[[
+    Raises an handled error to be handled by directives_dispatch()
+    (directives_dispatch is wrapped in a protected call for this)
+    is_syntax_error is a boolean that describes
+    the situation of a 'syntax_error' type of thing.
+    --]]
+
     -- Default values
-    error_msg = error_msg or "NOOOOooooooooo!"
+    error_msg = error_msg or vader.ERROR_UNDEFINED_MESSAGE
     -----------------
     -- Check if it's tool internal
     if is_syntax_error == true then
@@ -190,13 +224,12 @@ function vader_error(error_msg, is_syntax_error)
 end
 
 function vader_assert(condition, error_msg, is_syntax_error)
-    -- Raises an handled error to be handled by directives_dispatch()
-    -- If condition is not true
-    -- is_syntax_error is a boolean that describes
-    -- the situation of a 'syntax_error' type of thing.
+    --[[
+    see vader_error for description
+    --]]
     -- Default values
     condition = condition or false --just to prove a point
-    error_msg = error_msg or "NOOOOooooooooo!"
+    error_msg = error_msg or vader.ERROR_UNDEFINED_MESSAGE
     -----------------
     -- Do assert
     if not condition then
