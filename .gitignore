@@ -1,6 +1,7 @@
 #General ignores
-.DS_Store                #Mac stuff
-.*.*.sw?                 #Vim stuff
+.DS_Store               #Mac stuff
+.*.*.sw?                #Vim stuff (swapfiles)
+*.vim                   #Vim stuff (session files)
 
 #Project ignores
-preferences.xml          #Not to include user preferences
+preferences.xml         #Not to include user preferences
