@@ -246,6 +246,10 @@ function vader_assert(condition, error_msg, is_syntax_error)
 end
 
 function not_implemented(feature)
+    --[[
+    A helper/shorthand to inform user that the feature (s)he tried
+    to access is not implemented yet
+    --]]
     vader_error("NOT IMPLEMENTED YET: "..feature, true)
 end
 
@@ -271,7 +275,9 @@ require "process"
 --TODO: a file for these. plz?
 
 function sleep(time_ms)
-    --waits for time_ms milliseconds, then returns
+    --[[
+    Waits for time_ms milliseconds, then returns
+    --]]
     --TODO: THIS THING IS NOT WORKING. IT HANGS EVERYTHING!
     vader.logs.active_task:entry("Sleep")
     
@@ -291,9 +297,10 @@ function sleep(time_ms)
     end
 
     --sleep
-    while sleeping do
+    while sleeping == true do --NOTE:tried a fix here 8.3.2014
         --nothing
     end
+
     --that's it
     vader.logs.active_task:entry("Sleep over")
     return
