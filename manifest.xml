@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RenoiseScriptingTool doc_version="0">
+  <ApiVersion>4</ApiVersion>
+  <AutoUpgraded>true</AutoUpgraded>
+  <Id>com.kmaki.vader</Id>
+  <Version>0.10000000000000001</Version>
+  <Author>KMaki</Author>
+  <Name>vader</Name>
+  <Description>(V)ery (AD)vanced (E)diting for (R)enoise. A command line for geeky editing needs. CRASHES RENOISE.</Description>
+</RenoiseScriptingTool>
