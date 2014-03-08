@@ -1,3 +1,6 @@
-.DS_Store
-preferences.xml
-.*.*.sw?
+#General ignores
+.DS_Store                #Mac stuff
+.*.*.sw?                 #Vim stuff
+
+#Project ignores
+preferences.xml          #Not to include user preferences
