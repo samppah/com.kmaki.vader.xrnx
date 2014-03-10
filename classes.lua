@@ -801,8 +801,10 @@ do
         self.multiline_display_function = multiline_display_function
     end
     function ADisplay:show(display_object)
-        -- Generic show function
-        -- display_object can be a string or a table of strings
+        --[[
+        Generic show function to output text in any registered display.
+        Argument display_object can be a string or a table of strings
+        --]]
         -- Error catching
         vader_assert(display_object, "Tried to call "..type(self)..":show with nil display_object.")
         if not self.multilined then
@@ -864,9 +866,11 @@ do
         self:update_state("Initialized")
     end
     function VaderDirective:new_argument(argument)
-        -- This inserts a new argument to self.argument_table at index
-        -- Goes an extra mile for allowing storing and returning nil values
-        -- to / from a table
+        --[[
+        This inserts a new argument to self.argument_table at index. Goes an
+        extra mile for allowing storing and returning nil values to / from a
+        table
+        --]]
         if argument == nil then
             self.argument_table:insert(vader.NIL_PLACEHOLDER_IN_TABLES)
         else
@@ -874,10 +878,11 @@ do
         end
     end
     function VaderDirective:arguments()
-        -- This returns all arguments from self.argument_table
-        -- in 'unpacked' form to use with function calls
-        -- Goes an extra mile for allowing storing and returning nil values
-        -- to / from a table
+        --[[
+        This returns all arguments from self.argument_table in 'unpacked' form
+        to use with function calls.  Goes an extra mile for allowing storing
+        and returning nil values to / from a table
+        --]]
         local temp_args = table.copy(self.argument_table)
         local function unpack2(t)
             if #temp_args == 0 then
@@ -891,21 +896,29 @@ do
         return unpack2(temp_args)
     end
     function VaderDirective:update_state(state_string)
-        -- This updates the self.state and the log reference
+        --[[
+        This updates the self.state and the log reference
+        --]]
         self.state = state_string
         self.log_reference:append(state_string)
     end
     function VaderDirective:activate()
-        -- Sets directive state as Processing
+        --[[
+        Sets directive state as Processing
+        --]]
         self:update_state("Processing")
     end
     function VaderDirective:finish()
-        -- Sets directive state as Finished
+        --[[
+        Sets directive state as Finished
+        --]]
         self:update_state("Finished")
         -- Remove from list
     end
     function VaderDirective:dump()
-        --dumps the directive in target_display
+        --[[
+        Dumps the directive in target_display
+        --]]
         vader.logs.debug:entry("VaderDirective object dump():")
         vader.logs.debug:entry(self.name .. vader.LOG_DEFAULT_SEPARATOR .. self.state)
         vader.logs.debug:entry("Directive arguments:")
@@ -916,18 +929,19 @@ do
 end
 
 class "VaderDirectiveList" (AQueue)
---A list to hold directives
+-- A list to hold directives
 do
     function VaderDirectiveList:__init(name_string)
         AQueue.__init(self, name_string)
         self.content_type = "VaderDirective"
     end
     function VaderDirectiveList:entry(entry_object, hold_boolean)
-        -- This inserts a directive and triggers directives_trigger() in main.lua
-        -- when no hold_boolean is set
-        -- The hold_boolean must be set 'true', when directives are
-        -- called from within directives. directives_trigger() must only
-        -- be called by the directive that starts the snowball
+        --[[
+        This inserts a directive and triggers directives_trigger() in main.lua
+        when no hold_boolean is set.  The hold_boolean must be set 'true', when
+        directives are called from within directives. directives_trigger() must
+        only be called by the directive that starts the snowball.
+        --]]
 
         -- Error catching
         vader_assert(type(hold_boolean) == "boolean" or type(hold_boolean) == "nil", "Tried to call "..type(self)..":entry, with a hold_boolean type:"..type(hold_boolean)..". Use a boolean value.")
@@ -936,12 +950,14 @@ do
         -- Insert directive in main directive list
         self:push(entry_object)
 
-        -- THIS is the old way, inroducing notifier feedback loops.
-        -- long story short: directive cannot add another directive,
-        -- if the list is observed with the same notifier function
-        -- that ultimately called the final 'add directive'
-        -- TOGGLE (rather than set) the pending_toggle to make process go
-        -- vader.flags.pending_toggle.value = not vader.flags.pending_toggle.value
+        --[[
+        THIS is the old way, inroducing notifier feedback loops.  long story
+        short: directive cannot add another directive, if the list is observed
+        with the same notifier function that ultimately called the final 'add
+        directive' TOGGLE (rather than set) the pending_toggle to make process
+        go.
+        --]]
+        --vader.flags.pending_toggle.value = not vader.flags.pending_toggle.value
         
         if not hold_boolean then
             directives_trigger()
@@ -949,8 +965,10 @@ do
 
     end
     function VaderDirectiveList:entry_at(entry_object, index)
-        -- This inserts a directive at a specific place in the list
-        -- does NOT call directives_trigger(), (i.e. won't trigger emptying the list)
+        --[[
+        This inserts a directive at a specific place in the list.
+        NOTE: Does NOT call directives_trigger(), (i.e. won't trigger emptying the list)
+        --]]
 
         -- Error catching
         vader_assert(type(index) == "number" or type(index) == "nil", "Tried to call "..type(self)..":entry_at, with index type:"..type(index)..". Use a number or nil.")
@@ -961,10 +979,12 @@ do
     end
     
     function VaderDirectiveList:finish_and_remove(index)
-        -- This sets the directive at list postition "index" finished,
-        -- and removes it from the queue. If index is nil, normal Queue
-        -- order is used (first in, first out).
-        -- Always call when finishing a directive.
+        --[[
+        This sets the directive at list postition "index" finished, and removes
+        it from the queue. If index is nil, normal Queue order is used (first
+        in, first out).
+        Always call this when finishing a directive.
+        --]]
         -- Error catching
         vader_assert(type(index) == "number" or type(index) == "nil", "Tried to call "..type(self)..":finish_and_remove with index type:"..type(index)..". Use a number or nil.")
         ----------------
@@ -974,10 +994,11 @@ do
         self:get(index):finish()
     end
     function VaderDirectiveList:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return VaderDirectiveList(name_string)
     end
 end
@@ -1003,7 +1024,9 @@ do
         return #self.string
     end
     function CharacterStream:item(index)
-        -- Returns the index:th character
+        --[[
+        Returns the index:th character
+        --]]
         -- Error catching
         vader_assert(type(index) == "number", "Tried to call "..type(self)..":item ("..self.string..") with index type:"..type(index)..". Use a number.")
         vader_assert(index <= #self.string, "Tried to call "..type(self)..":item ("..self.string..") with out-of-bounds index:"..index..". Maximum is #self.string:"..#self.string)
@@ -1012,21 +1035,30 @@ do
         return string.sub(self.string, index, index)
     end
     function CharacterStream:all_items()
-        -- Returns all characters = a string
+        --[[
+        Returns all characters = a string
+        --]]
         return self.string
     end
     function CharacterStream:feed(message_string)
+        --[[
+        Replaces self.string with message_string
+        --]]
         -- Error catching
         vader_assert(type(message_string) == "string", "Tried to call "..type(self)..":feed ("..self.name..") with message_string type:"..type(message_string)..". Use a string.")
         ------------------
         self.string = message_string
     end
     function CharacterStream:create_empty_instance(name, string)
-        -- Returns a new instance
+        --[[
+        Returns a new instance
+        --]]
         return CharacterStream(name, string)
     end
     function CharacterStream:sub(name_string, start_index, end_index)
-        -- Returns a substring between indexes start_index and end_index
+        --[[
+        Returns a substring between indexes start_index and end_index
+        --]]
         -- Error catching
         vader_assert(type(start_index) == "number", "Tried to call "..type(self)..":sub ("..self.string..") with start_index type:"..type(start_index)..". Use a number.")
         vader_assert(start_index <= #self.string, "Tried to call "..type(self)..":sub ("..self.string..") with out-of-bounds start_index:"..start_index..". Maximum is #self.string:"..#self.string)
@@ -1038,8 +1070,10 @@ do
         return CharacterStream:create_empty_instance(name_string, string.sub(self.string, start_index, end_index))
     end
     function CharacterStream:find(search_string, start_index, end_index)
-        -- Returns the start and end indexes of the first
-        -- occurrence of search_string as an substring of self.string
+        --[[
+        Returns the start and end indexes of the first occurrence of
+        search_string as an substring of self.string
+        --]]
         -- Default values
         start_index = start_index or 1
         end_index = end_index or #self.string
@@ -1066,11 +1100,11 @@ do
         return find_index, position_case
     end
     function CharacterStream:split(at_item)
-        --Splits self.string so that first string
-        --will contain chars 1 - at_item
-        --second string will contain items
-        --at_item + 1 = #self.string
-        --Returns two objects of type type(self)
+        --[[
+        Splits self.string so that first string will contain chars 1 - at_item,
+        second string will contain items at_item + 1 = #self.string.
+        Returns two objects of type type(self)
+        --]]
         -- Error catching
         vader_assert(type(at_item) == "number", "Tried to split "..type(self).." ("..self.string..") with split_at argument type:"..type(at_item)..". Use a number.")
         vader_assert(#self.string > 0, "Tried to split "..type(self).." ("..self.string.."); self.string is empty.")
@@ -1083,7 +1117,7 @@ do
 end
 
 class "Token"
--- This is a single token
+-- A token class
 do
     function Token:__init(string, token_type_string, links, origin_string)
         -- Default values
@@ -1108,7 +1142,9 @@ do
         self.context=nil  
     end
     function Token:set_property(prop)
-        -- Sets a property to a token
+        --[[
+        Sets a property to a token
+        --]]
         vader_assert(type(self.properties)=="table", "Tried to set property on a malformed Token that has no properties table!") --TODO: rid this. Or the root of the problem, actually.
         --------------------
         if not self:has_property(prop) then
@@ -1119,7 +1155,9 @@ do
         end
     end
     function Token:feed_properties(prop_table)
-        -- Replaces self.properties with prop_table
+        --[[
+        Replaces self.properties with prop_table
+        --]]
         -- TODO:vader_asserts
         self.properties = table.create()
         for _ = 1, #prop_table do
@@ -1127,9 +1165,11 @@ do
         end
     end
     function Token:has_property(prop)
-        -- If token has property prop, returns the matching property (true) 
-        -- from its self.properties table
-        -- TODO:vader_asserts
+        --[[
+        If token has property prop, returns the matching property (true) from
+        its self.properties table.
+        TODO:vader_asserts
+        --]]
         for key, property in pairs(self.properties) do
             if property == prop then
                 return property
@@ -1138,9 +1178,11 @@ do
         return false
     end
     function Token:has_match_in_property_string(prop)
-        -- If token has property prop, returns the matching property (true) 
-        -- from its self.properties table
-        -- TODO:vader_asserts
+        --[[
+        If token has property prop, returns the matching property (true) from
+        its self.properties table.
+        TODO:vader_asserts
+        --]]
         for key, property in pairs(self.properties) do
             if string.find(property, prop) then
                 return property
@@ -1149,6 +1191,9 @@ do
         return false
     end
     function Token:dump(notitle)
+        --[[
+        Dumps token info in log
+        --]]
         vader.logs.debug:entry("--------")
         if not notitle then
             vader.logs.debug:entry(string.format("Token object dump()"))
@@ -1164,7 +1209,9 @@ do
         vader.logs.debug:entry("--------")
     end
     function Token:duplicate()
-        -- Returns a verbatim copy
+        --[[
+        Returns a verbatim copy
+        --]]
         local duplicate_token = Token(self.string, self.token_type, self.links, self.origin)
         duplicate_token:feed_properties(self.properties)
         duplicate_token.resolved = self.resolved
