@@ -32,6 +32,7 @@ function boot_process(main_vader)
     rs = get_rs()
 end
 function init_process_log(main_vader)
+    --This is called from main.lua to init this submodule log
     process_log = ALog("process()", vader.displays.no_display, 0)
     process_log:add_distribute_log(vader.logs.active_task)
 end

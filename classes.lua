@@ -28,7 +28,18 @@ function boot_classes(main_vader)
     vader = main_vader
 end
 
-function init_method_log()
+--[[
+The Method Log
+
+the method log acts as the "classes.lua" general log.
+
+For functions that need logging:
+1)register_method_log(type(self)..":<function_name>()")
+2)use "method_log:entry()" to enter stuff in log
+-]]
+
+function init_method_log(main_vader)
+    --This is called from main.lua to init this submodule log
     method_log = ALog("generic_class_method()", vader.displays.no_display, 0)
     method_log:add_distribute_log(vader.logs.active_task)
 end
@@ -42,6 +53,13 @@ function name_method_log(name)
 end
 
 function register_method_log(name)
+    --[[
+    Call this in function to take into use the general method log
+    preferred syntax for name:
+
+    <class_name>:<function_name>()
+
+    --]]
     vader_assert(type(name) == "string", "Tried to update method_log.name with name type:"..type(name)..". Use a string.")
     -----------------
     if method_log then

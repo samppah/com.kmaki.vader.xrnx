@@ -32,6 +32,7 @@ function boot_macro(main_vader)
 end
 
 function init_macro_log(main_vader)
+    --This is called from main.lua to init this submodule log
     macro_log = ALog("macro events log", vader.displays.no_display, 0)
     macro_log:add_distribute_log(vader.logs.active_task)
 end

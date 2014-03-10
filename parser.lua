@@ -28,6 +28,7 @@ function boot_parser(main_vader)
     vader = main_vader
 end
 function init_parse_log(main_vader)
+    --This is called from main.lua to init this submodule log
     parse_log = ALog("parse()", vader.displays.no_display, 0)
     parse_log:add_distribute_log(vader.logs.active_task)
 end
