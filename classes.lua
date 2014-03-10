@@ -199,7 +199,7 @@ do
         --]]
         
         -----------------
-        -- Error checking
+        -- Error catching
         vader_assert(index > 0, "Trying to get "..type(self).." ("..self.name..") first item and self.items is empty.")
         -----------------
         return self.items[1] 
@@ -210,7 +210,7 @@ do
         --]]
         
         -----------------
-        -- Error checking
+        -- Error catching
         vader_assert(index > 0, "Trying to get "..type(self).." ("..self.name..") last item and self.items is empty.")
         -----------------
         
