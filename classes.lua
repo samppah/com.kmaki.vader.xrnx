@@ -899,10 +899,10 @@ text, textfield, multiline text, ..?)
 
 class "VaderDirective"
 --[[
-A single internal directive
+A processing directive
 
-A directive is an internal command/process holder directing the execution of
-vader)
+A directive is an internal command/process object directing the execution of
+the program. These are stacked in VaderDirectiveList, and executed from there.
 --]]
 do
     function VaderDirective:__init(name_string, log_reference)
@@ -982,7 +982,7 @@ do
 end
 
 class "VaderDirectiveList" (AQueue)
--- A list to hold directives
+-- A list to hold directives. See VaderDirective.
 do
     function VaderDirectiveList:__init(name_string)
         AQueue.__init(self, name_string)
