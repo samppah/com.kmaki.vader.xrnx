@@ -75,7 +75,7 @@ end
 ----------------------------------------------------
 
 class "Counter"
--- a simple multipurpose 'click' counter
+-- A simple multipurpose 'click' counter
 do
     function Counter:__init()
         -- Initialize, always from zero
@@ -109,42 +109,22 @@ do
 end
 
 class "Switch"
--- a simple switch, just a wrapper for a boolean
+-- A simple switch, essentially just a wrapper for a boolean
 do
     function Switch:__init(state)
-        -- Initialize, by state if state is not nil, else on
-        ------------------
-        -- Update log name
-        ------------------
-        --local method_log = register_method_log(type(self)..":__init()")
-        ------------------
+        -- Initialize with state "state". If "state" is nil, self.state=on
         self.state = true
         if state ~= nil then
             self.state = state
         end
     end
     function Switch:on()
-        ------------------
-        -- Update log name
-        ------------------
-        --local method_log = register_method_log(type(self)..":on()")
-        ------------------
         self.state = true
     end
     function Switch:off()
-        ------------------
-        -- Update log name
-        ------------------
-        --local method_log = register_method_log(type(self)..":off()")
-        ------------------
         self.state = false
     end
     function Switch:toggle()
-        ------------------
-        -- Update log name
-        ------------------
-        --local method_log = register_method_log(type(self)..":toggle()")
-        ------------------
         self.state = not self.state
     end
 end
@@ -154,13 +134,18 @@ end
 ----------------------------------------------------
 
 class "AList"
---general list, stack, queue functions and properties
+--[[
+General list, stack, queue functions and properties
+A super for several subclasses
+--]]
 do
     function AList:__init(name_string, item_table, is_sparse)
-        -- Name string is self-evident
-        -- item_table can be used to init the AList with a ready table
-        -- is_sparse =true : will store nils as placeholders.
-        -- is_sparse =not true : attempting to store a nil value raises an error
+        --[[
+        Name string is self-evident
+        item_table can be used to init the AList with a ready table
+        is_sparse =true : will store nils as placeholders.
+        is_sparse =not true : attempting to store a nil value raises an error
+        --]]
         -- Error catching
         vader_assert(name_string, "Tried to init "..type(self).." with a nil name argument. Use a string.")
         vader_assert(type(name_string) == "string", "Tried to init "..type(self).." with name argument type:"..type(name_string)..". Only accepted type is string.")
@@ -176,29 +161,39 @@ do
         end
     end
     function AList:__len()
-        -- Overload the length operator
-        -- So that list item count can be queried with simple #AList
+        --[[
+        Overload the length operator
+        So that list item count can be queried with simple #AList
+        --]]
         return #self.items
     end
     function AList:item(index)
-        -- Returns an item with index
+        --[[
+        Returns an item with index
+        --]]
         -- Error catching
         vader_assert(type(index) == "number", "Trying to get "..type(self).." ("..self.name..") item with index type:"..type(index)..". Use a number.")
         vader_assert(index > 0 and index <= #self.items, "Trying to get "..type(self).." ("..self.name..") item index:"..index..", self.items index range is 1 - "..#self.items)
         return self.items[index]
     end
     function AList:all_items()
-        -- Returns the item table
+        --[[
+        Returns the item table
+        --]]
         return self.items
     end
     function AList:first()
-        -- Returns the first item
+        --[[
+        Returns the first item
+        --]]
         -- Error checking
         vader_assert(index > 0, "Trying to get "..type(self).." ("..self.name..") first item and self.items is empty.")
         return self.items[1] 
     end
     function AList:last()
-        -- Returns last item
+        --[[
+        Returns last item
+        --]]
         -- Error checking
         vader_assert(index > 0, "Trying to get "..type(self).." ("..self.name..") last item and self.items is empty.")
         if #self.items == 0 then
@@ -208,17 +203,23 @@ do
         end
     end
     function AList:top_index()
-        -- Returns the index of item next in line for pop()
+        --[[
+        Returns the index of item next in line for pop()
+        --]]
         -- No generalizations
         -- Depends on the subclass
     end
     function AList:bottom_index()
-        -- Returns the logical opposite index of item next in line for pop()
+        --[[
+        Returns the logical opposite index of item next in line for pop()
+        --]]
         -- No generalizations
         -- Depends on the subclass
     end
     function AList:top()
-        -- Returns the item next in line for pop()
+        --[[
+        Returns the item next in line for pop()
+        --]]
         local index = self:top_index()
         if index == nil then
             return nil
@@ -227,7 +228,9 @@ do
         end
     end
     function AList:bottom()
-        -- Returns the item last in line for pop() (first for pop_end())
+        --[[
+        Returns the item last in line for pop() (first for pop_end())
+        --]]
         local index = self:bottom_index()
         if index == nil then
             return nil
@@ -236,11 +239,15 @@ do
         end
     end
     function AList:clear()
-        -- Empties self.items table
+        --[[
+        Empties self.items table
+        --]]
         self.items = table.create()
     end
     function AList:push(item)
-        -- Inserts item in self.items from one end. (Defined by sub-class)
+        --[[
+        Inserts item in self.items from one end. (Defined by sub-class)
+        --]]
         -- Error catching
         if not self.is_sparse then
             vader_assert(item ~= nil, "Tried to push a nil object in "..type(self).." ("..self.name..")")
@@ -255,7 +262,9 @@ do
         -- Actual pushing dependant on data structure type. Handled on derived classes.
     end
     function AList:push_end(item)
-        -- Inserts item in self.items from one end. (Defined by sub-class)
+        --[[
+        Inserts item in self.items from one end. (Defined by sub-class)
+        --]]
         -- Error catching
         vader_assert(item, "Tried to push_end a nil object in "..type(self).." ("..self.name..")")
         if self.content_type then
@@ -264,8 +273,10 @@ do
         -- Actual pushing dependant on data structure type. Handled on derived classes.
     end
     function AList:pop()
-        -- Gets an item from self.items from one end. (Defined by sub-class)
-        -- Returns the item defined in top(), top_index(), removes from list
+        --[[
+        Gets an item from self.items from one end. (Defined by sub-class)
+        Returns the item defined in top(), top_index(), removes from list
+        --]]
         local retval = self:top()
         if retval == nil then
             --out of range index
@@ -281,8 +292,10 @@ do
         end
     end
     function AList:pop_end()
-        -- Gets an item from self.items from one end. (Defined by sub-class)
-        -- Returns the item defined in bottom(), bottom_index(), removes from list
+        --[[
+        Gets an item from self.items from one end. (Defined by sub-class)
+        Returns the item defined in bottom(), bottom_index(), removes from list
+        --]]
         local retval = self:bottom()
         if retval == nil then
             --out of range index
@@ -298,8 +311,10 @@ do
         end
     end
     function AList:get(index)
-        -- Gets an item from the middle of a list.
-        -- Returns the item, removes from list.
+        --[[
+        Gets an item from the middle of a list.
+        Returns the item, removes from list.
+        --]]
         local retval = self:item(index) 
         if retval == nil then
             --out of range index
@@ -315,7 +330,9 @@ do
         end
     end
     function AList:insert(item, index)
-        -- Inserts item in self.items by index
+        --[[
+        Inserts item in self.items by index
+        --]]
         -- Error catching
         if self.is_sparse then
             vader_assert(item, "Tried to insert a nil object in "..type(self).." ("..self.name..")")
@@ -335,7 +352,9 @@ do
         self.items:insert(index, item)
     end
     function AList:feed(item_table)
-        -- Replaces current self.items with item_table
+        --[[
+        Replaces current self.items with item_table
+        --]]
         -- Error catching
         vader_assert(type(item_table) == "table", "Tried to feed "..type(self).." ("..self.name..") an item_table type:"..type(item_table)..". Use a table of "..(self.content_type or "nil").." objects. (nil = no specified content_type)")
         -----------------
@@ -345,20 +364,20 @@ do
         end
     end
     function AList:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.
+        --]]
         -- Specific to each class.
         return AList(name_string)
     end
     function AList:split(at_item, name_1, name_2)
-        --Splits self.items so that first list
-        --will contain items 1 - last_item
-        --second list will contain items
-        --last_item + 1 = #self.items
-        --Returns two objects of type type(self)
-        --named name_1, name_2
-        --with respective self.items -values
+        --[[
+        Splits self.items so that first list will contain items 1 - last_item,
+        second list will contain items last_item + 1 = #self.items. Returns two
+        objects of type type(self) named name_1, name_2 with respective
+        self.items -values
+        --]]
         -- Error catching
         vader_assert(type(at_item) == "number", "Tried to split "..type(self).." ("..self.name..") with split_at argument type:"..type(at_item)..". Use a number.")
         vader_assert(type(name_1) == "string", "Tried to split "..type(self).." ("..self.name..") with name_1 argument type:"..type(name_1)..". Use a string.")
@@ -377,9 +396,10 @@ do
         return object_1, object_2
     end
     function AList:find_item(condition_function, condition_args, start_index, end_index)
-        -- This can be used to search a value within a property table
-        -- This is an abstraction, works together with subclass-specific 'condition-functions'
-        --
+        --[[
+        This can be used to search a value within a property table
+        This is an abstraction, works together with subclass-specific 'condition-functions'
+        --]]
         -- Default values
         start_index = start_index or 1
         end_index = end_index or #self.items
@@ -415,7 +435,9 @@ do
         return nil
     end
     function AList:sub(name_string, start_index, end_index)
-        -- Returns a sublist with items from start_index to end_index, named with argument name
+        --[[
+        Returns a sublist with items from start_index to end_index, named with argument name
+        --]]
         -- Default values
         start_index = start_index or 1
         end_index = end_index or #self.items
@@ -442,7 +464,9 @@ do
         return object
     end
     function AList:replace(start_index, end_index, replace_w_table)
-        -- Replaces self.items items from start_index to end_index with items in replace_w_table
+        --[[
+        Replaces self.items items from start_index to end_index with items in replace_w_table
+        --]]
         -- Error catching
         vader_assert(type(start_index) == "number", "Tried to use "..type(self)..":replace ("..self.name..") with start_index type:"..type(start_index)..". Use a number.")
         vader_assert(type(end_index) == "number", "Tried to use "..type(self)..":replace ("..self.name..") with end_index type:"..type(end_index)..". Use a number.")
@@ -487,7 +511,9 @@ do
         self:feed(combine)
     end
     function AList:duplicate()
-        -- Returns a verbatim copy
+        --[[
+        Returns a verbatim copy
+        --]]
         -- Inherited to subclasses that sport the create_empty_instance-method
         local duplicate_list = self:create_empty_instance(self.name)
         duplicate_list.items = table.copy(self.items)
@@ -519,7 +545,9 @@ do
         end
     end
     function AList:dump()
-        -- A debug function
+        --[[
+        A debug function
+        --]]
         vader.logs.debug:entry(string.format(type(self).." object: '"..self.name.."' dump()"))
         for i = 1, #self.items do
             if self.content_type == "TokenTree" then
@@ -539,14 +567,16 @@ do
 end
 
 class "AQueue" (AList)
---general queue functions and properties
+-- General queue functions and properties
 do
     function AQueue:__init(name_string, item_table)
         -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function AQueue:top_index()
-        -- Queue pops the item with biggest index
+        --[[
+        Queue pops the item with biggest index
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -554,7 +584,9 @@ do
         end
     end
     function AQueue:bottom_index()
-        -- Return the 'logical' last index in relation to pop()
+        --[[
+        Return the 'logical' last index in relation to pop()
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -562,35 +594,42 @@ do
         end
     end
     function AQueue:push(item)
-        -- Queue-push insert item in top of the list
+        --[[
+        Queue-push insert item in top of the list
+        --]]
         AList.push(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
     function AQueue:push_end(item)
-        -- Queue-push insert item in top of the list
+        --[[
+        Queue-push insert item in top of the list
+        --]]
         AList.push_end(self, item)
         -- Push item in list
         self.items:insert(item)
     end
     function AQueue:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return AQueue(name_string)
     end
 end
 
 class "ARevQueue" (AList)
---general queue functions and properties, reversed order
+-- General queue functions and properties, reversed order
 do
     function ARevQueue:__init(name_string, item_table)
         -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function ARevQueue:top_index()
-        -- Reverse-queue pops the item with smallest index
+        --[[
+        Reverse-queue pops the item with smallest index
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -598,7 +637,9 @@ do
         end
     end
     function ARevQueue:bottom_index()
-        -- Return the 'logical' last index in relation to pop()
+        --[[
+        Return the 'logical' last index in relation to pop()
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -606,35 +647,42 @@ do
         end
     end
     function ARevQueue:push(item)
-        -- Reverse Queue-push inserts item in end of the list
+        --[[
+        Reverse Queue-push inserts item in end of the list
+        --]]
         AList.push(self, item)
         -- Push item in list
         self.items:insert(item)
     end
     function ARevQueue:push_end(item)
-        -- Reverse Queue-push inserts item in end of the list
+        --[[
+        Reverse Queue-push inserts item in end of the list
+        --]]
         AList.push_end(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
     function ARevQueue:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return ARevQueue(name_string)
     end
 end
 
 class "AStack" (AList)
---general stack functions and properties
+-- General stack functions and properties
 do
     function AStack:__init(name_string, item_table)
         -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function AStack:top_index()
-        -- Stack pops the item with smallest index
+        --[[
+        Stack pops the item with smallest index
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -642,7 +690,9 @@ do
         end
     end
     function AStack:bottom_index()
-        -- Return the 'logical' last index in relation to pop()
+        --[[
+        Return the 'logical' last index in relation to pop()
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -650,35 +700,42 @@ do
         end
     end
     function AStack:push(item)
-        -- Stack-push inserts item in top of the list
+        --[[
+        Stack-push inserts item in top of the list
+        --]]
         AList.push(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
     function AStack:push_end(item)
-        -- Stack-push inserts item in top of the list
+        --[[
+        Stack-push inserts item in top of the list
+        --]]
         AList.push_end(self, item)
         -- Push item in list
         self.items:insert(item)
     end
     function AStack:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return AStack(name_string)
     end
 end
 
 class "ARevStack" (AList)
---general stack functions and properties, reversed order
+-- General stack functions and properties, reversed order
 do
     function ARevStack:__init(name_string, item_table)
         -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function ARevStack:top_index()
-        -- Reverse-stack pops the last item
+        --[[
+        Reverse-stack pops the last item
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -686,7 +743,9 @@ do
         end
     end
     function ARevStack:bottom_index()
-        -- Return the 'logical' last index in relation to pop()
+        --[[
+        Return the 'logical' last index in relation to pop()
+        --]]
         if #self.items == 0 then
             return nil
         else
@@ -694,22 +753,27 @@ do
         end
     end
     function ARevStack:push(item)
-        -- Reverse Stack-push inserts item to the end of the list
+        --[[
+        Reverse Stack-push inserts item to the end of the list
+        --]]
         AList.push(self, item)
         -- Push item in list
         self.items:insert(item)
     end
     function ARevStack:push_end(item)
-        -- Reverse Stack-push inserts item to the end of the list
+        --[[
+        Reverse Stack-push inserts item to the end of the list
+        --]]
         AList.push_end(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
     function ARevStack:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return ARevStack(name_string)
     end
 end
