@@ -4,9 +4,6 @@
 --
 ----------------------------------------------------
 -- file created         15-Feb-2012
---
--- last modification    23-Jun-2012
---
 
 -- this contains the pattern data processing function
 -- that is called by main, after parsing a message

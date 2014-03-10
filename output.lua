@@ -3,9 +3,6 @@
 --
 ------------------------------------------
 -- file created         08-Jan-2012
---
--- last modification    19-Feb-2012
---
 
 -- Output functions
 -- These handle directing a string into

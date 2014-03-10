@@ -2,11 +2,7 @@
 -- gui.lua
 --
 ------------------------------------------
--- File created         05-Jan-2012
---
--- Last modification    15-Jul-2012
---
---
+-- file created         05-Jan-2012
 
 -- Code for the various GUIs
 --

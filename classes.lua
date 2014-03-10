@@ -3,9 +3,6 @@
 --
 ----------------------------------------------------
 -- file created         05-Jan-2012
---
--- last modification    15-Feb-2012
---
 
 -- All classes used in tool
 -- They are put in subsections and
@@ -756,16 +753,22 @@ do
     end
 end
 
---TODO: a general vb text display
---(text, textfield, multiline text, ..?)
+--[[
+TODO: a general vb text display
+text, textfield, multiline text, ..?)
+--]]
 
 ----------------------------------------------------
 -- Main process
 ----------------------------------------------------
 
 class "VaderDirective"
---A single internal directive
---(an internal command/process holder directing the execution of vader)
+--[[
+A single internal directive
+
+A directive is an internal command/process holder directing the execution of
+vader)
+--]]
 do
     function VaderDirective:__init(name_string, log_reference)
         -- Error catching
@@ -1199,9 +1202,10 @@ do
 end
 
 class "TokenTree"
--- This is used to create a tree structure
--- of Tokenlists for parsing purposes
--- The main list handling methods are those of TokenStream (ARevQueue)
+--[[
+This is used to create a tree structure of Tokenlists for parsing purposes The
+main list handling methods are those of TokenStream (ARevQueue)
+--]]
 do
     function TokenTree:__init(name_string, list)
         ------------------
@@ -2304,10 +2308,11 @@ end
 ----------------------------------------------------
 
 class "IterationTable"
--- This guides the iteration loop process
--- It holds an ordered tree-like reference table 
--- to all the song data objects in iteration range
--- TODO: IS THIS REALLY USED ANYWHERE? USABLE? NO? REMOVE!:wa
+--[[
+This guides the iteration loop process It holds an ordered tree-like reference
+table to all the song data objects in iteration range TODO: IS THIS REALLY USED
+ANYWHERE? USABLE? NO? REMOVE!:wa
+--]]
 do
     function IterationTable:__init()
         self.method = nil   --patterns / sequence
@@ -2345,8 +2350,10 @@ do
 end
 
 class "RangeObject"
--- This is used to describe a vader range
--- It is an ordered table of index numbers that belong in the range
+--[[
+This is used to describe a vader range It is an ordered table of index numbers
+that belong in the range
+--]]
 do
     function RangeObject:__init()
         self.start_value = nil

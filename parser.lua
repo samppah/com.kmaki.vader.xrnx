@@ -3,9 +3,6 @@
 --
 ----------------------------------------------------
 -- file created         08-Jan-2012
---
--- last modification    21-Feb-2012
---
 
 -- The parsing subtasks
 -- i.e. handles the "PARSE" -directives from

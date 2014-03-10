@@ -283,10 +283,10 @@ add_test_group("Content in parentheses.",
         ":(6/2+2)", "Correct: 5",
     }
 )
---Have a GUI for testing
---pages for test groups
---buttons for testing a group
---buttons for each test item
+--[[
+Have a GUI for testing pages for test groups buttons for testing a group
+buttons for each test item
+--]]
 local function set_random_songpos(seq_boolean, track_boolean, line_boolean, col_boolean, inc_nc_boolean, inc_fx_boolean)
     print("setting random position: seq, track, line, col:")
     print(seq_boolean, track_boolean, line_boolean, col_boolean)
