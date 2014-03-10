@@ -447,7 +447,7 @@ do
         vader_assert(end_index <= #self.items, "Tried to use "..type(self)..":find ("..self.name..") with end_index:"..end_index..". The maximum is #self.items:"..#self.items)
         vader_assert(start_index > 0, "Tried to use "..type(self)..":find ("..self.name..") with start_index:"..start_index..". The minimum is 1")
         vader_assert(end_index > 0, "Tried to use "..type(self)..":find ("..self.name..") with end_index:"..end_index..". The minimum is 1")
-        --------------
+        -----------------
 
         local test_item
         local step
@@ -566,6 +566,9 @@ do
     end
     function AList:adjust(len)
         method_log.name = "AList:adjust()"
+        --[[
+        TODO: COMMENT THIS
+        --]]
         
         -----------------
         -- Error catching
@@ -832,6 +835,7 @@ class "ADisplay"
 -- General display for directing output into
 do
     function ADisplay:__init(name_string, display_function, multilined, multiline_display_function)
+        -----------------
         -- Error catching
         vader_assert(name_string, "Tried to init "..type(self).." with nil name_string.")
         vader_assert(type(name_string) == "string", "Tried to init "..type(self).." with a name_string type:"..type(name_string)..". Use string.")
@@ -839,7 +843,7 @@ do
         vader_assert(type(display_function) == "function", "Tried to init "..type(self).." with a display_function type:"..type(name_string)..". Use function value.")
         -- Default values
         self.multilined = multilined or false
-        ----------------
+        -----------------
         self.name = name_string
         self.display_function = display_function
         self.multiline_display_function = multiline_display_function
@@ -849,6 +853,8 @@ do
         Generic show function to output text in any registered display.
         Argument display_object can be a string or a table of strings
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(display_object, "Tried to call "..type(self)..":show with nil display_object.")
         if not self.multilined then
@@ -858,7 +864,8 @@ do
             vader_assert(obj_type == "string" or obj_type == "table", "Tried to call multilined "..type(self)..":show ("..self.name..") with a display_string type:"..obj_type..". Use string or a table of strings.")
             --TODO: check table for types!
         end
-        ----------------
+        -----------------
+        
         -- Display functions and display registering in output.lua
         if type(display_object) == "table" then
             --multiline display
@@ -1375,6 +1382,9 @@ do
         return self:find_item(token_type_condition, token_type, start_index, end_index)
     end
     function TokenStream:find_token_string(search_string, start_index, end_index)
+        --[[
+        TODO: COMMENT
+        --]]
         
         -----------------
         -- Error catching
@@ -1472,28 +1482,31 @@ do
         method_log:entry("Initialized a "..type(self).." ("..self.name..")", 2)
     end
     function TokenTree:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         local method_log = register_method_log(type(self)..":create_empty_instance()")
-        ------------------
+
         return TokenTree(name_string)
     end
     function TokenTree:__len()
-        -- Overload the length operator
+        --[[
+        Overload the length operator
+        --]]
         return #self.list
     end
     function TokenTree:init_list(name_string)
-        -- Creates the list
+        --[[
+        Creates the list
+        --]]
         self.list = TokenStream(name_string)
     end
     function TokenTree:init_tree()
-        -- Creates the branches structure
-        -- according to the self.list
+        --[[
+        Creates the branches structure according to the self.list
+        --]]
         self.branches = ARevQueue(self.list.name)
         self.branches.content_type = "TokenTree"
         for i = 1, #self.list.items do
@@ -1505,11 +1518,15 @@ do
         end
     end
     function TokenTree:item(index)
-        -- Wrapper. returns item from the self.list
+        --[[
+        Wrapper. returns item from the self.list
+        --]]
         return self.list:item(index)
     end
     function TokenTree:push(item)
-        -- Pushes a token in self.list, creates a branch
+        --[[
+        Pushes a token in self.list, creates a branch
+        --]]
         if not self.list then
             self:init_list(item.string)
         end
@@ -1522,7 +1539,9 @@ do
         self.list:push(item)
     end
     function TokenTree:insert(item)
-        -- Inserts a token in self.list, creates a branch
+        --[[
+        Inserts a token in self.list, creates a branch
+        --]]
         if not self.list then
             self:init_list(item.name)
         end
@@ -1535,7 +1554,9 @@ do
         self.list:insert(item, index)
     end
     function TokenTree:push_end(item)
-        -- Inserts a token in self.list, creates a branch
+        --[[
+        Inserts a token in self.list, creates a branch
+        --]]
         if not self.list then
             self:init_list(item.name)
         end
@@ -1548,17 +1569,23 @@ do
         self.list:push_end(item)
     end
     function TokenTree:pop()
-        -- Returns an item from self.list, handles branches-table
+        --[[
+        Returns an item from self.list, handles branches-table
+        --]]
         self.branches:pop()
         return self.list:pop()
     end
     function TokenTree:pop_end()
-        -- Returns an item from self.list, handles branches-table
+        --[[
+        Returns an item from self.list, handles branches-table
+        --]]
         self.branches:pop_end()
         return self.list:pop_end()
     end
     function TokenTree:get(index)
-        -- Returns an item from self.list, handles branches-table
+        --[[
+        Returns an item from self.list, handles branches-table
+        --]]
         self.branches:get(index)
         return self.list:get(index)
     end
@@ -1654,19 +1681,27 @@ do
         end
     end
     function TokenTree:branches_object()
-        -- Returns the branches-list -object
+        --[[
+        Returns the branches-list -object
+        --]]
         return self.branches
     end
     function TokenTree:branches_table()
-        -- Returns the items table of the branches-list
+        --[[
+        Returns the items table of the branches-list
+        --]]
         return self.branches.items
     end
     function TokenTree:branch(index)
-        -- Returns a branch by index
+        --[[
+        Returns a branch by index
+        --]]
         return self.branches.items[index]
     end
     function TokenTree:has_branch(index)
-        -- Returns true if branch index has a list longer than 0 items
+        --[[
+        Returns true if branch index has a list longer than 0 items
+        --]]
         local test_list = self:branch(index).list.items
         return (test_list and #test_list > 0)
     end
@@ -1692,15 +1727,21 @@ do
         return false
     end
     function TokenTree:parent()
-        -- Returns the parent TokenTree object
+        --[[
+        Returns the parent TokenTree object
+        --]]
         return self.parent_reference
     end
     function TokenTree:has_parent()
-        --Returns true if self.parent_reference is not nil, else false
+        --[[
+        Returns true if self.parent_reference is not nil, else false
+        --]]
         return self.parent_reference ~= nil
     end
     function TokenTree:create_branch(name_string, tokenstream)
-        -- Creates empty branch, feeds tokenstream if not nil, sets self.parent_reference
+        --[[
+        Creates empty branch, feeds tokenstream if not nil, sets self.parent_reference
+        --]]
         local new_branch = self:create_empty_instance(name_string)
         if tokenstream ~= nil then
             new_branch:feed(tokenstream)
@@ -1708,15 +1749,13 @@ do
         return new_branch
     end
     function TokenTree:replace_w_stream(name_string, start_index, end_index, token, tokenstream)
-        -- Replaces tokens from start_index to end_index with 'token', and
-        -- creates a branching tokenstream (or empty branch if tokenstream ==
-        -- nil) name_string argument is the name of the new TokenTree object
-        -- (the one branching from the placeholder
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Replaces tokens from start_index to end_index with 'token', and creates
+        a branching tokenstream (or empty branch if tokenstream == nil)
+        name_string argument is the name of the new TokenTree object (the one
+        branching from the placeholder)
+        --]]
         local method_log = register_method_log(type(self)..":replace_w_stream()")
-        ------------------
         
         -- Handle self.list
         self.list:replace(start_index, end_index, {token})
@@ -1728,12 +1767,11 @@ do
         return new_branch
     end
     function TokenTree:replace_w_tree(name_string, start_index, end_index, token, tokentree)
-        -- Differs to replace_w_stream in that this places a full TokenTree structures instead of a flat TokenStream
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Differs to replace_w_stream in that this places a full TokenTree structures instead of a flat TokenStream
+        --]]
         local method_log = register_method_log(type(self)..":replace_w_tree()")
-        ------------------
+
         self.list:replace(start_index, end_index, {token})
         
         -- Handle self.branches
@@ -1742,47 +1780,59 @@ do
         return tokentree
     end
     function TokenTree:find_token_type(token_type, start_index, end_index)
-        -- Wrapper. Search self.list
+        --[[
+        Wrapper. Search self.list
+        --]]
         return self.list:find_token_type(token_type, start_index, end_index)
     end
     function TokenTree:find_token_type_match(token_type, start_index, end_index)
-        -- Wrapper. Search self.list
+        --[[
+        Wrapper. Search self.list
+        --]]
         return self.list:find_token_type_match(token_type, start_index, end_index)
     end
     function TokenTree:find_token_string(search_string, start_index, end_index)
-        -- Wrapper. Search self.list
+        --[[
+        Wrapper. Search self.list
+        --]]
         return self.list:find_token_string(search_string, start_index, end_index)
     end
     function TokenTree:find_token_property(search_prop, start_index, end_index)
-        -- Wrapper. Search self.list
+        --[[
+        Wrapper. Search self.list
+        --]]
         return self.list:find_token_property(search_prop, start_index, end_index)
     end
     function TokenTree:set_property(prop)
-        -- Wrapper. Set property on self.list
+        --[[
+        Wrapper. Set property on self.list
+        --]]
         return self.list:set_property(prop)
     end
     function TokenTree:branch_by_points(at_table, sub_token_table, branch_name_table, separator_handling_mode)
-        -- Splits tree at at_table points and branches into substreams
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Splits tree at at_table points and branches into substreams
+        --]]
         local method_log = register_method_log(type(self)..":branch_by_points()")
-        ------------------
 
         local mode_fix = 0
-        -- The mode_fix is for the case that the first split is assigned at 2 and
-        -- separator handling mode is set to "into_next". In which case
-        -- no first part is ever created, and the index calculator i, which is
-        -- used to set the first token cursor point, needs to be adjusted accordingly.
+        --[[
+        The mode_fix is for the case that the first split is assigned at 2 and
+        separator handling mode is set to "into_next". In which case no first
+        part is ever created, and the index calculator i, which is used to set
+        the first token cursor point, needs to be adjusted accordingly.
+        --]]
         
         for i = 1, #at_table do
             
             vader.logs.debug:entry("splitting tree:("..self.name..") part:"..i, 10)
 
-            -- Calculate actual cut point based on various stuff:
-            -- a) the previous tokenstreams are now 1 token long. (cut_correction)
-            -- b) separator handling mode. (cut_fix)
-            -- c) special cases where 0 length streams would be output. (mode_fix)
+            --[[
+            Calculate actual cut point based on various stuff:
+            a) the previous tokenstreams are now 1 token long. (cut_correction)
+            b) separator handling mode. (cut_fix)
+            c) special cases where 0 length streams would be output. (mode_fix)
+            --]]
             
             local cut_correction = 0
             -- The cut_correction is the 'master' correction value. It will have all the corrections applied.
@@ -1879,12 +1929,10 @@ do
         return self
     end
     function TokenTree:branch_nests()
-        -- This finds this level nests and creates sub branches for them 
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        This finds this level nests and creates sub branches for them 
+        --]]
         local method_log = register_method_log(type(self)..":branch_nests()")
-        ------------------
         
         -- Catch abnormalities
         if not self.list then
@@ -1959,16 +2007,15 @@ do
         return true
     end
     function TokenTree:branch_binary_ops()
-        --  This finds the first 'this_op' binary operation token
-        --  and splits the whole tree in half at that point
-        --  creating two <binary_nest> tokens and the operator is left intact
-        --  (possible values for this_op include 'sub', 'mul' etc..)
-        --  TODO:THIS IS COMPLETELY WRONG!
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        This finds the first 'this_op' binary operation token
+        and splits the whole tree in half at that point
+        creating two <binary_nest> tokens and the operator is left intact
+        (possible values for this_op include 'sub', 'mul' etc..)
+        TODO:THIS IS COMPLETELY WRONG!
+        --]]
         local method_log = register_method_log(type(self)..":branch_binary_ops()")
-        ------------------
+
         local precedence = {
             "mul",
             "div",
@@ -2102,13 +2149,12 @@ do
         return true
     end
     function TokenTree:denest()
-        -- Unwraps a nest layer from a TokenTree structure
-        -- Assumes a TokenTree comprising of a single <nest> token
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Unwraps a nest layer from a TokenTree structure
+        Assumes a TokenTree comprising of a single <nest> token
+        --]]
         local method_log = register_method_log(type(self)..":denest()")
-        ------------------
+        
         -- Catch impossible or unnecessary denestings
         if not self.list then
             -- This cannot be a valid nest, no subdata!
@@ -2138,7 +2184,9 @@ do
         return true
     end
     function TokenTree:duplicate()
-        --Returns a deeply copied duplicate of self
+        --[[
+        Returns a deeply copied duplicate of self
+        --]]
         local duplicate_tree = TokenTree(self.name)
 
         if self.list then
@@ -2163,17 +2211,22 @@ do
         return duplicate_tree
     end
     function TokenTree:sub(name_string, start_index, end_index)
-        -- Returns a subset of the tree (list/branches)
-        -- Do the sub by creating a duplicate and removing unnecessary
-        -- bits from the start and the end
-        -- Catch errors
+        --[[
+        Returns a subset of the tree (list/branches)
+        Do the sub by creating a duplicate and removing unnecessary
+        bits from the start and the end
+        --]]
+        
+        -----------------
+        -- Error catching
         vader_assert(type(name_string) == "string", "Tried to call "..type(self)..":sub with a name_string argument type:"..type(name_string)..". Use a string.")
         vader_assert(type(start_index) == "number", "Tried to call "..type(self)..":sub with a start_index argument type:"..type(start_index)..". Use a number.")
         vader_assert(type(end_index) == "number", "Tried to call "..type(self)..":sub with a end_index argument type:"..type(start_index)..". Use a number.")
         vader_assert(start_index <= end_index, "Tried to call "..type(self)..":sub with a start_index higher than end_index. (start_idex:"..start_index..", end_index:"..end_index..")")
         vader_assert(start_index >= 1, "Tried to call "..type(self)..":sub with a start_index lower than 1. The minimum is 1. (start_idex:"..start_index..")")
         vader_assert(end_index <= #self, "Tried to call "..type(self)..":sub with a end_index higher than #self. (end_index:"..end_index..", #self:"..#self..")")
-        ---------------
+        -----------------
+        
         local sub_tree = self:duplicate()
         if start_index > 1 then
             for i = 1, start_index-1 do
@@ -2191,6 +2244,9 @@ do
         return sub_tree
     end
     function TokenTree:debug_check(silent, really_silent)
+        --[[
+        TODO: COMMENT
+        --]]
         local is_printable = true
         local is_ok = true
         local function stealthprint(stuff)
@@ -2272,18 +2328,17 @@ do
         return is_printable, is_ok
     end
     function TokenTree:solve()
-        -- This solves a token tree into a single number
-        -- This assumes that the stream is solvable, i.e.
-        -- comprises of nothing more than
-        --      -numbers (be them hex, dec, note val or other)
-        --      -values that can be looked up from tables (vars, etc.)
-        --      -nesting
-        --      -binary operations
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        This solves a token tree into a single number This assumes that the
+        stream is solvable, i.e.  comprises of nothing more than
+
+         -numbers (be them hex, dec, note val or other)
+         -values that can be looked up from tables (vars, etc.)
+         -nesting
+         -binary operations
+
+        --]]
         local method_log = register_method_log(type(self)..":solve()")
-        ------------------
         
         -- Create solve tree and stack for solving
         -- Solve stack object
@@ -2404,10 +2459,12 @@ end
 class "Scanner"
 do
     function Scanner:__init(name_string, original)
+        -----------------
         -- Error Catching
         vader_assert(type(name_string) == "string", "Tried to init a "..type(self).." with name_string type:"..type(name_string)..". Use a string.")
         vader_assert(type(original) == self.content_type, "Tried to init a "..type(self).." with original type:"..type(original)..". Use a "..self.content_type)
         -----------------
+
         self.name = name_string
         self.original = original
         self.from = 1
@@ -2415,15 +2472,21 @@ do
         self.inspect = self.original:sub(self.name.."__inspect", self.from, self.to)
     end
     function Scanner:at_last_item()
-        -- Returns true if the scanner end is at the original items end
+        --[[
+        Returns true if the scanner end is at the original items end
+        --]]
         return self.to == #self.original
     end
     function Scanner:scan_len()
-        -- Returns the scanner items len
+        --[[
+        Returns the scanner items len
+        --]]
         return #self.inspect
     end
     function Scanner:original_len()
-        -- Returns the original items len
+        --[[
+        Returns the original items len
+        --]]
         return #self.original
     end
     function Scanner:update()
@@ -2448,7 +2511,9 @@ do
         end
     end
     function Scanner:contract_to_one()
-        -- Moves self.to on self.from
+        --[[
+        Moves self.to on self.from
+        --]]
         if self.to == self.from then
             return false
         else
@@ -2467,6 +2532,9 @@ do
         end
     end
     function Scanner:contract_()
+        --[[
+        TODO: COMMENT
+        --]]
         if self.from == self.to then
             return false
         else
@@ -2476,7 +2544,9 @@ do
         end
     end
     function Scanner:contract_to_one_()
-        -- Moves self.from on self.to
+        --[[
+        Moves self.from on self.to
+        --]]
         if self.from == self.to then
             return false
         else
@@ -2486,7 +2556,9 @@ do
         end
     end
     function Scanner:mv_fwd()
-        -- Caterpillars forward
+        --[[
+        Caterpillars forward
+        --]]
         if self:expand() == true then
             self:contract_()
             return true
@@ -2495,7 +2567,9 @@ do
         end
     end
     function Scanner:mv_back()
-        -- Caterpillars backward
+        --[[
+        Caterpillars backward
+        --]]
         if self:expand_() == true then
             self:contract()
             return true
@@ -2504,45 +2578,61 @@ do
         end
     end
     function Scanner:reset()
-        -- Go to start, len 1
+        --[[
+        Go to start, len 1
+        --]]
         self.from = 1
         self.to = 1
         self:update()
     end
     function Scanner:scan_object()
-        -- Returns the self.inspect object
+        --[[
+        Returns the self.inspect object
+        --]]
         return self.inspect
     end
     function Scanner:scan_item(index)
-        -- Returns item index n of the scanner object
+        --[[
+        Returns item index n of the scanner object
+        --]]
         return self:scan_object():item(index)
     end
     function Scanner:all_scan_items()
-        -- Return the entire scan item series
-        -- On character scanner this is a string
-        -- on token scanner this is a table of tokens
+        --[[
+        Return the entire scan item series.  On character scanner this is a
+        string, and on token scanner this is a table of tokens.
+        --]]
         return self:scan_object():all_items()
     end
     function Scanner:original_object()
-        -- returns the self.original object
+        --[[
+        Returns the self.original object
+        --]]
         return self.original
     end
     function Scanner:original_item(index)
-        -- Returns item index n of the original object
+        --[[
+        Returns item index n of the original object
+        --]]
         return self:original_object():item(index)
     end
     function Scanner:all_original_items()
-        -- Return the entire original item series
-        -- On character scanner this is a string
-        -- on token scanner this is a table of tokens
+        --[[
+        Return the entire original item series.  On character scanner this is a
+        string, and on token scanner this is a table of tokens
+        --]]
         return self:original_object():all_items()
     end
     function Scanner:head()
-        -- Returns the first scan item
+        --[[
+        Returns the first scan item
+        --]]
         return self:scan_item(1)
     end
     function Scanner:tail()
-        -- Returns the last scan item
+        --[[
+        Returns the last scan item
+        --]]
         return self:scan_item(self:scan_len())
     end
 end
@@ -2623,7 +2713,9 @@ do
         self.skip_empty = false
     end
     function RangeObject:dump()
-        --prints range in terminal
+        --[[
+        Prints range in terminal
+        --]]
         vader.logs.debug:entry("RangeObject dump(): start "..self.start_value.." / end "..self.end_value)
     end
 end
@@ -2645,7 +2737,9 @@ do
        end
     end
     function VaderCursor:get_all()
-        -- Get current cursor pos
+        --[[
+        Get current cursor pos
+        --]]
         local rs = get_rs()
         local edit_pos = rs.transport.edit_pos
         self.sequence = edit_pos.sequence
@@ -2656,7 +2750,9 @@ do
         self.effect_column = rs.selected_effect_column_index
     end
     function VaderCursor:get(item)
-        -- Get a position index for selected songdata object category
+        --[[
+        Get a position index for selected songdata object category
+        --]]
         vader_assert(type(item)=="string", "Tried to call "..type(self)..":get() with item type:"..type(item)..". Use a string.")
         local rs = get_rs()
         -- Get current cursor pos
@@ -2678,6 +2774,9 @@ do
         end
     end
     function VaderCursor:set_all()
+        --[[
+        Set current renoise cursor positions to VaderCursor
+        --]]
         local rs = get_rs()
         local c = vader.cursor
         local new_pos = rs.transport.edit_pos
@@ -2698,6 +2797,9 @@ do
         rs.transport.edit_pos = new_pos
     end
     function VaderCursor:dump()
+        --[[
+        Dump cursor info to debug log
+        --]]
         vader.logs.debug:entry("sequence:"..self.sequence)
         vader.logs.debug:entry("pattern:"..self.pattern)
         vader.logs.debug:entry("track:"..self.track)
@@ -2722,6 +2824,9 @@ do
         self.range = RangeObject()
     end
     function ScopePartialObject:dump()
+        --[[
+        Dump partial info to debug log
+        --]]
         local formatstring_1 = "ScopePartialObject dump(): %s"
         local formatstring_2 = "level:%s  /  origin:%s  /  range:%s..%s"
         vader.logs.debug:entry(string.format(formatstring_1, self.name))
@@ -2993,11 +3098,11 @@ do
         end
     end
     function ScopeObject:dump()
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Dump Scope info to debug log
+        --]]
         local method_log = register_method_log(type(self)..":dump()")
-        ------------------
+
         vader.logs.debug:entry("ScopeObject dump():")
         vader.logs.debug:entry("--")
         vader.logs.debug:entry("PATTERN LEVEL - " .. (self.scope[1].name or "nil"))
@@ -3020,23 +3125,21 @@ do
         vader.logs.debug:entry("--")
     end
     function ScopeObject:partial(level_index)
-        -- Returns a partial by level_index
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Returns a partial by level_index
+        --]]
         local method_log = register_method_log(type(self)..":partial()")
-        ------------------
+
         return self.scope[level_index]
     end
     function ScopeObject:get_object_pointed_at()
-        -- Returns the CURRENT object that is pointed at in the scope.
-        -- i.e. the object that has "lowest index",
-        -- i.e. the final object user is pointing at with scope.
-        ------------------
-        -- Update log name
-        ------------------
+        --[[
+        Returns the CURRENT object that is pointed at in the scope.
+        i.e. the object that has "lowest index",
+        i.e. the final object user is pointing at with scope.
+        --]]
         local method_log = register_method_log(type(self)..":get_object_pointed_at()")
-        ------------------
+
         local low_i = self.lowest_index
         local low_name = self.lowest_name
         --[[
@@ -3348,12 +3451,14 @@ class "VaderOption"
 -- This is an option, controllable by user
 do
     function VaderOption:__init(name_string, set_function, value_type_string, flag_table)
+        -----------------
         -- Error catching
         vader_assert(type(name_string) == "string", "Tried to init a "..type(self).." with name_string argument type:"..type(name_string)..". Use a string.")
         vader_assert(type(set_function) == "function", "Tried to init a "..type(self).." with set_function argument type:"..type(set_function)..". Use a function.")
         vader_assert(type(value_type_string) == "string", "Tried to init a "..type(self).." with value_type_string argument type:"..type(value_type_string)..". Use a string.")
         vader_assert(type(flag_table) == "table", "Tried to init a "..type(self).." with flag_table argument type:"..type(flag_table)..". Use a table.")
-        -------------
+        -----------------
+
         self.name = name_string
         self.value_type = value_type_string
         --[[
@@ -3368,9 +3473,10 @@ do
         self.value.script = nil
     end
     function VaderOption:set(value)
+        -----------------
         -- Error catching
         vader_assert(type(value) == self.value_type, "Tried to call "..type(self)..":set ("..self.name..") with mismatching value type. Value type for this instance is:"..self.value_type..".")
-        -------------
+        -----------------
     end
     function VaderOption:set_for_script(value)
         self:set(value)
