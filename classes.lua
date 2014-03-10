@@ -78,32 +78,34 @@ class "Counter"
 -- A simple multipurpose 'click' counter
 do
     function Counter:__init()
-        -- Initialize, always from zero
         self.count = 0
     end
     function Counter:inc()
-        -- Increment by 1 
         self.count = self.count + 1
     end
     function Counter:dec()
-        -- Decrement by 1
         self.count = self.count - 1
     end
     function Counter:reset()
-        -- Reset to zero
         self.count = 0
     end
     function Counter:set(number)
-        -- Set to number
+        --[[
+        Set to number
+        --]]
+        
         ------------------
         -- Error catching
         vader_assert(type(number) == "number", "Tried to set a Counter with number type:"..type(number)..". Use a number.")
         vader_assert(number - math.floor(number) == 0, "Tried to set a Counter with float value:"..number..". Use an integer.")
         -------------
+        
         self.count = number
     end
     function Counter:value()
-        -- Return the counter value
+        --[[
+        Return the counter value
+        --]]
         return self.count
     end
 end
@@ -112,7 +114,9 @@ class "Switch"
 -- A simple switch, essentially just a wrapper for a boolean
 do
     function Switch:__init(state)
-        -- Initialize with state "state". If "state" is nil, self.state=on
+        --[[
+        Initialize with state "state". If "state" is nil, self.state=on
+        --]]
         self.state = true
         if state ~= nil then
             self.state = state
@@ -146,10 +150,13 @@ do
         is_sparse =true : will store nils as placeholders.
         is_sparse =not true : attempting to store a nil value raises an error
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(name_string, "Tried to init "..type(self).." with a nil name argument. Use a string.")
         vader_assert(type(name_string) == "string", "Tried to init "..type(self).." with name argument type:"..type(name_string)..". Only accepted type is string.")
         ---------------
+        
         self.name = name_string
         self.items = table.create()
         self.content_type = nil
@@ -171,9 +178,13 @@ do
         --[[
         Returns an item with index
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(index) == "number", "Trying to get "..type(self).." ("..self.name..") item with index type:"..type(index)..". Use a number.")
         vader_assert(index > 0 and index <= #self.items, "Trying to get "..type(self).." ("..self.name..") item index:"..index..", self.items index range is 1 - "..#self.items)
+        -----------------
+        
         return self.items[index]
     end
     function AList:all_items()
@@ -186,16 +197,23 @@ do
         --[[
         Returns the first item
         --]]
+        
+        -----------------
         -- Error checking
         vader_assert(index > 0, "Trying to get "..type(self).." ("..self.name..") first item and self.items is empty.")
+        -----------------
         return self.items[1] 
     end
     function AList:last()
         --[[
         Returns last item
         --]]
+        
+        -----------------
         -- Error checking
         vader_assert(index > 0, "Trying to get "..type(self).." ("..self.name..") last item and self.items is empty.")
+        -----------------
+        
         if #self.items == 0 then
             return nil
         else
@@ -248,6 +266,8 @@ do
         --[[
         Inserts item in self.items from one end. (Defined by sub-class)
         --]]
+        
+        -----------------
         -- Error catching
         if not self.is_sparse then
             vader_assert(item ~= nil, "Tried to push a nil object in "..type(self).." ("..self.name..")")
@@ -259,17 +279,23 @@ do
         if self.content_type then
             vader_assert(type(item) == self.content_type, "Tried to push a "..type(item).." object in "..type(self).." ("..self.name.."). Content type is "..self.content_type..".")
         end
+        -----------------
+        
         -- Actual pushing dependant on data structure type. Handled on derived classes.
     end
     function AList:push_end(item)
         --[[
         Inserts item in self.items from one end. (Defined by sub-class)
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(item, "Tried to push_end a nil object in "..type(self).." ("..self.name..")")
         if self.content_type then
             vader_assert(type(item) == self.content_type, "Tried to push_end a "..type(item).." object in "..type(self).." ("..self.name.."). Content type is "..self.content_type..".")
         end
+        -----------------
+        
         -- Actual pushing dependant on data structure type. Handled on derived classes.
     end
     function AList:pop()
@@ -333,6 +359,8 @@ do
         --[[
         Inserts item in self.items by index
         --]]
+        
+        -----------------
         -- Error catching
         if self.is_sparse then
             vader_assert(item, "Tried to insert a nil object in "..type(self).." ("..self.name..")")
@@ -349,15 +377,19 @@ do
         vader_assert(index > 0, "Tried to use "..type(self)..":insert ("..self.name..") with index:"..index..". The minimum is 1")
         vader_assert(index > 0, "Tried to use "..type(self)..":insert ("..self.name..") with index:"..index..". The minimum is 1")
         -----------------
+        
         self.items:insert(index, item)
     end
     function AList:feed(item_table)
         --[[
         Replaces current self.items with item_table
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(item_table) == "table", "Tried to feed "..type(self).." ("..self.name..") an item_table type:"..type(item_table)..". Use a table of "..(self.content_type or "nil").." objects. (nil = no specified content_type)")
         -----------------
+        
         self:clear()
         for key, item in ipairs(item_table) do
             self:push(item)
@@ -378,6 +410,8 @@ do
         objects of type type(self) named name_1, name_2 with respective
         self.items -values
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(at_item) == "number", "Tried to split "..type(self).." ("..self.name..") with split_at argument type:"..type(at_item)..". Use a number.")
         vader_assert(type(name_1) == "string", "Tried to split "..type(self).." ("..self.name..") with name_1 argument type:"..type(name_1)..". Use a string.")
@@ -385,6 +419,7 @@ do
         vader_assert(#self.items > 0, "Tried to split "..type(self).." ("..self.name.."); self.items is empty.")
         vader_assert(at_item < #self.items, "Tried to split "..type(self).." ("..self.name..") at the last item in self.items, which would result in an empty second instance.")
         -----------------
+
         local object_1 = self:create_empty_instance(name_1)
         local object_2 = self:create_empty_instance(name_2)
         for item_index = 1, at_item do
@@ -400,6 +435,8 @@ do
         This can be used to search a value within a property table
         This is an abstraction, works together with subclass-specific 'condition-functions'
         --]]
+        
+        -----------------
         -- Default values
         start_index = start_index or 1
         end_index = end_index or #self.items
@@ -411,6 +448,7 @@ do
         vader_assert(start_index > 0, "Tried to use "..type(self)..":find ("..self.name..") with start_index:"..start_index..". The minimum is 1")
         vader_assert(end_index > 0, "Tried to use "..type(self)..":find ("..self.name..") with end_index:"..end_index..". The minimum is 1")
         --------------
+
         local test_item
         local step
         if start_index > end_index then
@@ -438,6 +476,8 @@ do
         --[[
         Returns a sublist with items from start_index to end_index, named with argument name
         --]]
+        
+        -----------------
         -- Default values
         start_index = start_index or 1
         end_index = end_index or #self.items
@@ -450,6 +490,7 @@ do
         vader_assert(start_index > 0, "Tried to use "..type(self)..":sub ("..self.name..") with start_index:"..start_index..". The minimum is 1")
         vader_assert(end_index > 0, "Tried to use "..type(self)..":sub ("..self.name..") with end_index:"..end_index..". The minimum is 1")
         -------------------
+
         local object = self:create_empty_instance(name_string)
         local step
         if start_index > end_index then
@@ -467,6 +508,8 @@ do
         --[[
         Replaces self.items items from start_index to end_index with items in replace_w_table
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(start_index) == "number", "Tried to use "..type(self)..":replace ("..self.name..") with start_index type:"..type(start_index)..". Use a number.")
         vader_assert(type(end_index) == "number", "Tried to use "..type(self)..":replace ("..self.name..") with end_index type:"..type(end_index)..". Use a number.")
@@ -478,6 +521,7 @@ do
         vader_assert(type(replace_w_table) == "table", "Tried to call "..type(self)..":replace ("..self.name..") with replace_w_table argument type:"..type(replace_w_table)..". Use a table of "..self.content_type.." objects.")
         vader_assert(#replace_w_table > 0 , "Tried to call "..type(self)..":replace ("..self.name..") with replace_w_table that has zero items.")
         -------------------
+        
         --create sub - lists
         local start_part = table.create()
         if start_index > 1 then
@@ -522,6 +566,8 @@ do
     end
     function AList:adjust(len)
         method_log.name = "AList:adjust()"
+        
+        -----------------
         -- Error catching
         vader_assert(type(len) == "number" or type(len) == "nil", "Tried to call "..type(self)..":adjust() ("..self.name..") with a len argument type:"..type(len)..". Use a number or nil.")
         if type(len) == "number" then
@@ -529,6 +575,8 @@ do
         end
         -- Default values
         len = len or self.max_len
+        -----------------
+        
         -- Silent exit conditions
         if len == nil then
             -- Cannot adjust
@@ -570,7 +618,6 @@ class "AQueue" (AList)
 -- General queue functions and properties
 do
     function AQueue:__init(name_string, item_table)
-        -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function AQueue:top_index()
@@ -594,18 +641,18 @@ do
         end
     end
     function AQueue:push(item)
+        AList.push(self, item)
         --[[
         Queue-push insert item in top of the list
         --]]
-        AList.push(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
     function AQueue:push_end(item)
+        AList.push_end(self, item)
         --[[
         Queue-push insert item in top of the list
         --]]
-        AList.push_end(self, item)
         -- Push item in list
         self.items:insert(item)
     end
@@ -623,7 +670,6 @@ class "ARevQueue" (AList)
 -- General queue functions and properties, reversed order
 do
     function ARevQueue:__init(name_string, item_table)
-        -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function ARevQueue:top_index()
@@ -647,18 +693,18 @@ do
         end
     end
     function ARevQueue:push(item)
+        AList.push(self, item)
         --[[
         Reverse Queue-push inserts item in end of the list
         --]]
-        AList.push(self, item)
         -- Push item in list
         self.items:insert(item)
     end
     function ARevQueue:push_end(item)
+        AList.push_end(self, item)
         --[[
         Reverse Queue-push inserts item in end of the list
         --]]
-        AList.push_end(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
@@ -676,7 +722,6 @@ class "AStack" (AList)
 -- General stack functions and properties
 do
     function AStack:__init(name_string, item_table)
-        -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function AStack:top_index()
@@ -700,18 +745,18 @@ do
         end
     end
     function AStack:push(item)
+        AList.push(self, item)
         --[[
         Stack-push inserts item in top of the list
         --]]
-        AList.push(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
     function AStack:push_end(item)
+        AList.push_end(self, item)
         --[[
         Stack-push inserts item in top of the list
         --]]
-        AList.push_end(self, item)
         -- Push item in list
         self.items:insert(item)
     end
@@ -729,7 +774,6 @@ class "ARevStack" (AList)
 -- General stack functions and properties, reversed order
 do
     function ARevStack:__init(name_string, item_table)
-        -- Basic functionality of a list
         AList.__init(self, name_string, item_table)
     end
     function ARevStack:top_index()
@@ -753,18 +797,18 @@ do
         end
     end
     function ARevStack:push(item)
+        AList.push(self, item)
         --[[
         Reverse Stack-push inserts item to the end of the list
         --]]
-        AList.push(self, item)
         -- Push item in list
         self.items:insert(item)
     end
     function ARevStack:push_end(item)
+        AList.push_end(self, item)
         --[[
         Reverse Stack-push inserts item to the end of the list
         --]]
-        AList.push_end(self, item)
         -- Push item in list
         self.items:insert(1, item)
     end
@@ -855,10 +899,12 @@ vader)
 --]]
 do
     function VaderDirective:__init(name_string, log_reference)
+        -----------------
         -- Error catching
         vader_assert(type(name_string) == "string", "Tried to initialize a VaderDirective with name type:"..type(name_string)..". Only accepted type is string.")
         vader_assert(type(log_reference) == "LogObject", "Tried to initialize a VaderDirective with wrong log_reference type:"..type(log_reference)..". Only accepted type is an existing LogObject.")
-        ----
+        -----------------
+        
         self.name = name_string
         self.argument_table = table.create()
         self.state = ""
@@ -943,6 +989,7 @@ do
         only be called by the directive that starts the snowball.
         --]]
 
+        -----------------
         -- Error catching
         vader_assert(type(hold_boolean) == "boolean" or type(hold_boolean) == "nil", "Tried to call "..type(self)..":entry, with a hold_boolean type:"..type(hold_boolean)..". Use a boolean value.")
         -----------------
@@ -970,6 +1017,7 @@ do
         NOTE: Does NOT call directives_trigger(), (i.e. won't trigger emptying the list)
         --]]
 
+        -----------------
         -- Error catching
         vader_assert(type(index) == "number" or type(index) == "nil", "Tried to call "..type(self)..":entry_at, with index type:"..type(index)..". Use a number or nil.")
         -----------------
@@ -985,9 +1033,12 @@ do
         in, first out).
         Always call this when finishing a directive.
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(index) == "number" or type(index) == "nil", "Tried to call "..type(self)..":finish_and_remove with index type:"..type(index)..". Use a number or nil.")
         ----------------
+
         index = index or self:top_index()
         --vader.logs.debug:entry("finishing and removing a directive from index position:"..index..":")
         --self:item(index):dump()
@@ -1011,10 +1062,12 @@ class "CharacterStream"
 -- A "custom string type". To have similar methods with TokenList.
 do
     function CharacterStream:__init(name_string, message_string)
+        -----------------
         -- Error catching
         vader_assert(type(name_string) == "string", "Tried to init a "..type(self).." with name_string argument type:"..type(name_string)..". Use string.")
         vader_assert(type(message_string) == "string", "Tried to init a "..type(self).." with message_string argument type:"..type(message_string)..". Use string.")
         ------------------
+
         self.name = name_string
         self.string = message_string
         self.msg_type = nil
@@ -1027,11 +1080,14 @@ do
         --[[
         Returns the index:th character
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(index) == "number", "Tried to call "..type(self)..":item ("..self.string..") with index type:"..type(index)..". Use a number.")
         vader_assert(index <= #self.string, "Tried to call "..type(self)..":item ("..self.string..") with out-of-bounds index:"..index..". Maximum is #self.string:"..#self.string)
         vader_assert(index > 0, "Tried to call "..type(self)..":item ("..self.string..") with out-of-bounds index:"..index..". Minimum is 1")
         ------------------
+
         return string.sub(self.string, index, index)
     end
     function CharacterStream:all_items()
@@ -1044,9 +1100,12 @@ do
         --[[
         Replaces self.string with message_string
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(message_string) == "string", "Tried to call "..type(self)..":feed ("..self.name..") with message_string type:"..type(message_string)..". Use a string.")
         ------------------
+
         self.string = message_string
     end
     function CharacterStream:create_empty_instance(name, string)
@@ -1059,6 +1118,8 @@ do
         --[[
         Returns a substring between indexes start_index and end_index
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(start_index) == "number", "Tried to call "..type(self)..":sub ("..self.string..") with start_index type:"..type(start_index)..". Use a number.")
         vader_assert(start_index <= #self.string, "Tried to call "..type(self)..":sub ("..self.string..") with out-of-bounds start_index:"..start_index..". Maximum is #self.string:"..#self.string)
@@ -1067,6 +1128,7 @@ do
         vader_assert(end_index <= #self.string, "Tried to call "..type(self)..":sub ("..self.string..") with out-of-bounds end_index:"..end_index..". Maximum is #self.string:"..#self.string)
         vader_assert(end_index > 0, "Tried to call "..type(self)..":sub ("..self.string..") with out-of-bounds end_index:"..end_index..". Minimum is 1")
         ------------------
+
         return CharacterStream:create_empty_instance(name_string, string.sub(self.string, start_index, end_index))
     end
     function CharacterStream:find(search_string, start_index, end_index)
@@ -1074,6 +1136,8 @@ do
         Returns the start and end indexes of the first occurrence of
         search_string as an substring of self.string
         --]]
+        
+        -----------------
         -- Default values
         start_index = start_index or 1
         end_index = end_index or #self.string
@@ -1088,6 +1152,7 @@ do
         vader_assert(start_index <= end_index, "Tried to use "..type(self)..":find ("..self.string..") with start_index with value greater than end_index. Start:"..start_index..", end:"..end_index)
         vader_assert(start_index + #search_string <= end_index, "Tried to call "..type(self)..":find ("..self.string..") with too long search string:"..#search_string.." (start:"..start_index..", end:"..end_index..", len:"..end_index - start_index..")")
         -----------------
+
         local position_case
         local find_index = string.find(string.sub(self.string, 1, end_index), search_string, start_index)
         if find_index == 1 then
@@ -1105,11 +1170,14 @@ do
         second string will contain items at_item + 1 = #self.string.
         Returns two objects of type type(self)
         --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(at_item) == "number", "Tried to split "..type(self).." ("..self.string..") with split_at argument type:"..type(at_item)..". Use a number.")
         vader_assert(#self.string > 0, "Tried to split "..type(self).." ("..self.string.."); self.string is empty.")
         vader_assert(at_item < #self.string, "Tried to split "..type(self).." ("..self.string..") at the last item in self.string, which would result in an empty second instance.")
         -----------------
+
         local object_1 = self:create_empty_instance(string.sub(self.string, 1, at_item))
         local object_2 = self:create_empty_instance(string.sub(self.string, at_item+1, #self.string))
         return object_1, object_2
@@ -1120,6 +1188,7 @@ class "Token"
 -- A token class
 do
     function Token:__init(string, token_type_string, links, origin_string)
+        -----------------
         -- Default values
         -- The character string of entire token
         self.string=string or ""        
@@ -1135,7 +1204,8 @@ do
         vader_assert(type(self.string) == "string", "Tried to init a "..type(self).." with string argument type:"..type(string)..". Use a string.")
         vader_assert(type(self.token_type) == "string", "Tried to init a "..type(self).." with token_type_string argument type:"..type(token_type_string)..". Use a string.")
         vader_assert(type(self.origin) == "string", "Tried to init a "..type(self).." with origin_string argument type:"..type(origin_string)..". Use a string.")
-        ----------------------------------
+        -----------------
+        
         -- This is for resolve to value/taskify 
         self.resolved=nil      
         -- If there's an implication of scope, it is stored here
@@ -1145,8 +1215,13 @@ do
         --[[
         Sets a property to a token
         --]]
-        vader_assert(type(self.properties)=="table", "Tried to set property on a malformed Token that has no properties table!") --TODO: rid this. Or the root of the problem, actually.
-        --------------------
+        
+        -----------------
+        -- Error catching
+        vader_assert(type(self.properties)=="table", "Tried to set property on a malformed Token that has no properties table!") 
+        --TODO: rid this. Or the root of the problem, actually.
+        -----------------
+        
         if not self:has_property(prop) then
             table.insert(self.properties, prop)
             --vader.logs.debug:entry("set property "..prop.." to Token:"..self.string..".")--debug
@@ -1229,20 +1304,26 @@ do
         self.resolved = nil
     end
     function TokenStream:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return TokenStream(name_string)
     end
     function TokenStream:find_token_type(token_type, start_index, end_index)
-        -- Searches returns the index of first item in self.items, that
-        -- has matching self.token_type with the token_type argument
-        -- Direction of search is defined with start_index, end_index
-        -- (end_index can be smaller than start_index).
+        --[[
+        Searches returns the index of first item in self.items, that has
+        matching self.token_type with the token_type argument.  Direction of
+        search is defined with start_index, end_index (end_index can be smaller
+        than start_index).
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(token_type) == "string", "Tried to find_token_type with token_type type:"..type(token_type)..". Use a string.")
         ----------------
+        
         local function token_type_condition(item, token_type)
             if item.token_type == token_type then
                 return true
@@ -1250,14 +1331,21 @@ do
         end
         return self:find_item(token_type_condition, token_type, start_index, end_index)
     end
+
     function TokenStream:find_token_type_match(token_type, start_index, end_index)
-        -- Searches returns the index of first item in self.items, that
-        -- has matching self.token_type with the token_type argument
-        -- Direction of search is defined with start_index, end_index
-        -- (end_index can be smaller than start_index).
+        --[[
+        Searches returns the index of first item in self.items, that has
+        matching self.token_type with the token_type argument.  Direction of
+        search is defined with start_index, end_index (end_index can be smaller
+        than start_index).
+        TODO: Describe how is this different than find_token_type()??
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(token_type) == "string", "Tried to find_token_type with token_type type:"..type(token_type)..". Use a string.")
         ----------------
+        
         local function token_type_match_condition(item, token_type)
             if item.token_type:find(token_type) then
                 return true
@@ -1266,13 +1354,19 @@ do
         return self:find_item(token_type_match_condition, token_type, start_index, end_index)
     end
     function TokenStream:find_token_type_not(token_type, start_index, end_index)
-        -- Searches returns the index of first item in self.items, that
-        -- has matching self.token_type with the token_type argument
-        -- Direction of search is defined with start_index, end_index
-        -- (end_index can be smaller than start_index).
+        --[[
+        Searches returns the index of first item in self.items, that has
+        matching self.token_type with the token_type argument Direction of
+        search is defined with start_index, end_index (end_index can be smaller
+        than start_index).
+        TODO: Describe how is this different than find_token_type()??
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(token_type) == "string", "Tried to find_token_type with token_type type:"..type(token_type)..". Use a string.")
         ----------------
+        
         local function token_type_condition(item, token_type)
             if item.token_type ~= token_type then
                 return true
@@ -1281,9 +1375,12 @@ do
         return self:find_item(token_type_condition, token_type, start_index, end_index)
     end
     function TokenStream:find_token_string(search_string, start_index, end_index)
+        
+        -----------------
         -- Error catching
         vader_assert(type(search_string) == "string", "Tried to find_token_string with search_string type:"..type(search_string)..". Use a string.")
         ----------------
+
         local function token_string_condition(item, search_string)
             if item.string == search_string then
                 return true
@@ -1292,9 +1389,15 @@ do
         return self:find_item(token_string_condition, search_string, start_index, end_index)
     end
     function TokenStream:find_token_property(search_prop, start_index, end_index)
+        --[[
+        TODO:Comment this function
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(search_prop) == "string", "Tried to find_token_property with search_prop type:"..type(search_prop)..". Use a string.")
         ----------------
+
         local function token_prop_condition(item, search_prop)
             if item:has_property(search_prop) then
                 return true
@@ -1303,7 +1406,9 @@ do
         return self:find_item(token_prop_condition, search_prop, start_index, end_index)
     end
     function TokenStream:dump()
-        -- A debug function
+        --[[
+        A debug function
+        --]]
         vader.logs.debug:entry(string.format("TokenStream object: '"..self.name.."' dump()"))
         for i = 1, #self.items do
             vader.logs.debug:entry("--------")
@@ -1312,10 +1417,15 @@ do
         end
     end
     function TokenStream:set_property(prop)
-        -- Sets property prop for each TokenStream Token
+        --[[
+        Sets property prop for each TokenStream Token
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(prop)=="string", "Tried to call "..type(self)..":set_property ("..self.name..") with prop argument type:"..type(prop)..". Use a string.")
         -----------------
+        
         if self.items and #self.items > 0 then
             for i =1, #self.items do
                 self:item(i):set_property(prop)
@@ -1323,7 +1433,9 @@ do
         end
     end
     function TokenStream:duplicate()
-        -- Returns a verbatim copy
+        --[[
+        Returns a verbatim copy
+        --]]
         local duplicate_stream = ARevQueue.duplicate(self)
         duplicate_stream.content_type = self.content_type
         return duplicate_stream
@@ -1337,10 +1449,8 @@ main list handling methods are those of TokenStream (ARevQueue)
 --]]
 do
     function TokenTree:__init(name_string, list)
-        ------------------
-        -- Update log name
-        ------------------
         local method_log = register_method_log(type(self)..":__init()")
+
         ------------------
         -- Default values
         name_string = name_string or ""
@@ -1348,6 +1458,7 @@ do
         vader_assert(type(name_string) == "string", "Tried to init a "..type(self).." with name_string type:"..type(name_string)..". Use a string.")
         vader_assert(type(list) == "TokenStream" or type(list) =="nil", "Tried to init a "..type(self).." with list type:"..type(list)..". Use a TokenStream.")
         ----------------
+        
         -- self.list holds this node TokenStream, a list of Tokens, that is
         -- self.branches is a holder for a list of TokenTrees
         self.name = name_string
@@ -1452,10 +1563,16 @@ do
         return self.list:get(index)
     end
     function TokenTree:feed(tokenstream)
-        -- Feeds a stream, replacing the old content
+        --[[
+        Feeds a stream, replacing the old content
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(tokenstream) == "TokenStream", "Tried to call "..type(self)..":feed ("..self.name..") with tokenstream argument type:"..type(tokenstream)..". Use a TokenStream object.")
         vader_assert(#tokenstream.items > 0, "Tried to call "..type(self)..":feed ("..self.name..") with tokenstream that has zero length. Use a TokenStream with at least 1 item.")
+        -----------------
+        
         -- Replaces current list
         self:init_list(tokenstream.name)
         for i = 1, #tokenstream.items do
@@ -1464,10 +1581,15 @@ do
         self:init_tree()
     end
     function TokenTree:dump()
-        -- Wrapper. dumps the self.list
+        --[[
+        Wrapper. dumps the self.list
+        --]]
+        
+        -----------------
         -- Error Catching
         vader_assert(type(self.list) == "TokenStream" or type(self.list) == "nil", "Tried to call "..type(self)..":dump(), but self.list type is:"..type(self.list)..".")
         ------------------
+
         if self.list then
             self.list:dump()
             vader.logs.debug:entry("Also:self.resolved = "..(self.resolved or "nil"))
@@ -1476,11 +1598,15 @@ do
         end
     end
     function TokenTree:dump_recursive(level, recursive_call)
-        -- Dumps the tree structure
-        -- TODO: create a multiline-version of this for home-dump swiftness!
-        -- this must be something like: on first call create a dump_table table,
-        -- collect all entries into the table, and when exiting the recursion
-        -- loop in the very first call loop, ka-pow: display!
+        --[[
+        Dumps the tree structure
+
+        TODO: create a multiline-version of this for home-dump swiftness!
+        this must be something like: on first call create a dump_table table,
+        collect all entries into the table, and when exiting the recursion
+        loop in the very first call loop, ka-pow: display!
+
+        --]]
         local this_level = level or 0
         if not recursive_call then
             vader.logs.debug:entry("Tree dump of "..type(self).." object ("..self.name.."):")
@@ -1545,10 +1671,15 @@ do
         return (test_list and #test_list > 0)
     end
     function TokenTree:branch_by_name(name_string)
-        -- Returns a branch by index
+        --[[
+        Returns a branch by index
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(name_string) == "string", "Tried to call "..self.type..":branch_by_name with name_string argument type:"..type(name_string)..". Use a string.")
         ------------------
+
         if self.branches > 0 then
             for key, branch in pairs(self.branches) do
                 if branch.name == name_string then
@@ -2419,16 +2550,16 @@ end
 class "CharacterScanner" (Scanner)
 do
     function CharacterScanner:__init(name_string, original_charstream)
-        self.content_type = "CharacterStream"
         Scanner.__init(self, name_string, original_charstream)
+        self.content_type = "CharacterStream"
     end
 end
 
 class "TokenScanner" (Scanner)
 do
     function TokenScanner:__init(name_string, original_tokenstream)
-        self.content_type = "TokenStream"
         Scanner.__init(self, name_string, original_tokenstream)
+        self.content_type = "TokenStream"
     end
 end
 
@@ -2601,14 +2732,13 @@ class "ScopeObject"
 -- This is used to describe an iteration scope
 do
     function ScopeObject:__init(cxt)
-        ------------------
-        -- Update log name
-        ------------------
         local method_log = register_method_log(type(self)..":__init()")
+        
         ------------------
         -- Error catching
         vader_assert(type(cxt) == "TokenTree" or type(cxt) == "nil", "Tried to init a ScopeObject with cxt type:"..type(cxt)..". Use a TokenTree object or nil.")
         -----------------
+        
         -- Create the partials table
         self.scope = table.create()
         self.topmost_index = nil
@@ -2943,12 +3073,15 @@ class "LogObject"
 -- This is a single log item
 do
     function LogObject:__init(entry_string, verbosity)
+        -----------------
         -- Error catching
         vader_assert(entry_string, "Tried to init a LogObject using a nil string argument, use a string")
         vader_assert(type(entry_string) == "string", "Tried to init a LogObject with type:"..type(entry_string)..". Only accepted type is string.")
         -- Default values
         verbosity = verbosity or 0 --default verbosity level (0=show always)
         vader_assert(type(verbosity) == "number", "Tried to init a LogObject with verbosity type:"..type(verbosity)..". Only accepted type is number.")
+        -----------------
+        
         -- Object properties
         self.time = os.date() --last edit of this entry
         self.time_c = os.date() --creation time
@@ -2956,22 +3089,33 @@ do
         self.verbosity = verbosity
     end
     function LogObject:edit(edit_string)
-        -- Edits the LogObject.string into edit_string
+        --[[
+        Edits the LogObject.string into edit_string
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(edit_string, "Tried to edit a LogObject string using a nil string argument, use string")
         vader_assert(type(edit_string) == "string", "Tried to edit a LogObject string with type:"..type(edit_string)..". Only accepted type is string.")
+        -----------------
+        
         -- Set properties
         self.time = os.date() --last edit
         self.string = edit_string
     end
     function LogObject:append(append_string, separator_string)
-        -- Appends to the LogObject.string with separator_string..append_string
-        -- If no separator_string set, vader.LOG_DEFAULT_SEPARATOR will be used
+        --[[
+        Appends to the LogObject.string with separator_string..append_string
+        If no separator_string set, vader.LOG_DEFAULT_SEPARATOR will be used
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(append_string, "Tried to append to a LogObject string using a nil string argument, use a string")
         vader_assert(type(append_string) == "string", "Tried to append to a LogObject string with type:"..type(append_string)..". Only accepted type is string.")
         separator_string = separator_string or vader.LOG_DEFAULT_SEPARATOR
         vader_assert(type(separator_string) == "string", "Tried to append to a LogObject string with separator type:"..type(separator_string)..". Only accepted type is string.")
+        -----------------
 
         -- Set properties
         self.time = os.date() --last edit
@@ -2986,12 +3130,16 @@ do
         AQueue.__init(self, name_string)
         self.type = "ALog"
         self.content_type = "LogObject"
+        
+        -----------------
+        -- Error catching
         vader_assert(type(target_display) == "ADisplay", "Tried to init "..type(self).." with target_display type:"..type(target_display)..". Use an ADisplay object.")
         -- Default values
         self.target_display = target_display or vader.displays.dump
         verbosity_threshold = verbosity_threshold or 0
         self.max_len = max_len or vader.LOG_DEFAULT_MAX_LEN
-        ---------------
+        -----------------
+
         self.target_display = target_display
         self.verbosity_threshold =verbosity_threshold 
         self.distribute_logs = AQueue("distribute_logs")
@@ -3000,18 +3148,20 @@ do
         self:entry(self.name.." initialized (ALog)", vader.LOG_INIT_VERBOSITY)
     end
     function ALog:entry(entry_object, verbosity)
-        -- Inserts an entry to top of list
-        -- Entry object type either a LogObject or a string (will be converted into a LogObject)
-        -- If string is used, a verbsity level can be given with the latter argument
+        --[[
+        Inserts an entry to top of list
+        Entry object type either a LogObject or a string (will be converted into a LogObject)
+        If string is used, a verbsity level can be given with the latter argument
+        --]]
+        
         ---------------
         -- Error catching
         vader_assert(entry_object, "Tried to insert a nil object into ALog ("..self.name.."), use a LogObject or a string.")
         vader_assert(type(entry_object) == "LogObject" or type(entry_object) == "string", "Tried to insert type:"..type(entry_object).." into ALog. Only accepted types are LogObject and string.")
         ---------------
-        -- Declare the internal variable that will
-        -- be occupied with the entry
+        
+        -- Declare the internal variable that will be occupied with the entry
         local final_entry
-        ---------------
         -- Validate entry_object, populate final_entry
         if type(entry_object) ==  "string" then
             final_entry = LogObject(entry_object, verbosity)
@@ -3043,19 +3193,24 @@ do
         return final_entry
     end
     function ALog:dump(target_display, verbosity)
-        -- This will dump the log in target_display
-        -- target_display must be ADisplay-object, and
-        -- registered under vader.displays.
-        -- see "output.lua"
-        -- Verbosity is to set dump threshold, type number
-        ---------------
+        --[[
+        This will dump the log in target_display target_display must be
+        ADisplay-object, and registered under vader.displays.
+
+        see "output.lua"
+
+        Verbosity is to set dump threshold, type = number
+        --]]
+        
+        -----------------
         -- Default values
         target_display = target_display or vader.displays.dump
         verbosity = verbosity or 0
         -- Error catching
         vader_assert(type(target_display) == "ADisplay", "Tried to dump "..type(self).." ("..self.name..") into a target_display type:"..type(target_display)..". Use ADisplay object.")
         vader_assert(type(verbosity) == "number", "Tried to dump "..type(self).." ("..self.name..") with verbosity level type:"..type(verbosity)..". Use number.") 
-        ---------------
+        -----------------
+        
         -- Dump title
         local verbosity_string = ""
         if verbosity and verbosity > 0 then
@@ -3075,16 +3230,29 @@ do
         target_display:show("-----------------------------------------")
     end
     function ALog:verbosity(verbosity_threshold)
-        -- Sets log item display verbosity threshold
+        --[[
+        Sets log item display verbosity threshold
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(verbosity_threshold) == "number", "Tried to set "..type(self).." verbosity_threshold with argument type:"..verbosity_threshold..". Use number.")
+        -----------------
+        
         self.verbosity_threshold = verbosity_threshold
     end
     function ALog:get_items_table(verbosity_threshold)
-        -- Returns all items under verbosity threshold
-        -- Error catching
+        --[[
+        Returns all items under verbosity threshold
+        --]]
+        
+        -----------------
+        -- Default values
         verbosity_threshold = verbosity_threshold or 0
+        -- Error catching
         vader_assert(type(verbosity_threshold) == "number", "Tried to get "..type(self).." items with verbosity_threshold argument type:"..verbosity_threshold..". Use number.")
+        -----------------
+
         local retval = table.create()
         for key, item in ipairs(self.items) do
             if item.verbosity <= verbosity_threshold then
@@ -3094,22 +3262,27 @@ do
         return retval
     end
     function ALog:create_empty_instance(name_string)
-        -- This is a helper that returns an empty
-        -- instance of this class. Helps functions
-        -- that return other instances of their class.
-        -- Specific to each class.
+        --[[
+        This is a helper that returns an empty instance of this class. Helps
+        functions that return other instances of their class.  Specific to each
+        class.
+        --]]
         return ALog(name_string, self.target_display, self.verbosity_threshold)
     end
     function ALog:add_distribute_log(distribute_log)
-        -- Adds a log in self.distribute logs,
-        -- effectively adds a note to echo all entries of this log
-        -- into the added log
+        --[[
+        Adds a log in self.distribute logs, effectively adds a note to echo all
+        entries of this log into the added log
+        --]]
         self.distribute_logs:push(distribute_log)
         distribute_log:entry(self.name.." registered as sublog of "..distribute_log.name, vader.LOG_INIT_VERBOSITY)
     end
     function ALog:compress()
-        -- Compresses repeating log information
-        -- A destructive method!
+        --[[
+        Compresses repeating log information
+
+        A destructive method!
+        --]]
         if #self > 0 then
             -- Get final log_items in this table
             local final_log_items = {
@@ -3143,10 +3316,15 @@ do
         return self
     end
     function ALog:join_log(alog)
-        -- Joins alog to self, emptying alog in the process
+        --[[
+        Joins alog to self, emptying alog in the process
+        --]]
+        
+        -----------------
         -- Error catching
         vader_assert(type(alog) == "ALog", "Tried to call "..type(self)..":add_log() ("..self.name..") with alog argument type:"..type(alog)..". Use ALog object.")
         -----------------
+
         if #alog == 0 then
             --silent exit
             return
