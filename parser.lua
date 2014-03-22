@@ -33,6 +33,8 @@ function init_parse_log(main_vader)
     parse_log:add_distribute_log(vader.logs.active_task)
 end
 
+
+
 ----------------------------------------------------
 -- Minor functions
 ----------------------------------------------------
@@ -1091,8 +1093,36 @@ end
 -- Main functions
 ----------------------------------------------------
 
-
+parse_error = ""
 function parse(input_msg, parse_recursion_level, is_successive_message)
+
+    --Start a new parse
+    parse_log:clear()
+    parse_log:entry("Parsing...")
+
+    --LPEG BRANCH TESTS
+    print("input_msg", input_msg)
+    local lulpeg = require "LuLpeg/lulpeg"
+    local G = require "grammar"
+    print("G", G)
+    local match = lulpeg.match
+    local test = match(G.script, input_msg)
+    print("test", test)
+    rprint(test)
+    if parse_error == "" then
+        parse_log:entry("Success.")
+    else
+        local error_msg = "Parsing error: "..parse_error
+        parse_error = "" --reset for future errors
+        parse_log:entry(error_msg)
+        vader_error(error_msg, true) --true is for "is_syntax_error")
+    end
+    return true
+
+
+end
+
+function dummylol()
 
     --Start a new parse
     parse_log:clear()
