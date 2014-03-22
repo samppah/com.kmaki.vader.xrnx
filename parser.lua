@@ -1100,49 +1100,46 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
     parse_log:clear()
     parse_log:entry("Parsing...")
 
-    --LPEG BRANCH TESTS
-    print("input_msg", input_msg)
+    -- Update root node
+    vader = get_tool_root_node()
+
+--LPEG BRANCH TESTS
+print("input_msg", input_msg)
+
+    --Setup LPeg for parsing
     local lulpeg = require "LuLpeg/lulpeg"
     local G = require "grammar"
-    print("G", G)
     local match = lulpeg.match
-    local test = match(G.script, input_msg)
-    print("test", test)
-    rprint(test)
+
+    --Get LPeg parsed input
+    local parsed_input = match(G.script, input_msg)
+
+--LPEG BRANCH TESTS
+print("parsed_input", parsed_input)
+rprint(parsed_input)
+
+    --Check parsing success
     if parse_error == "" then
-        parse_log:entry("Success.")
+        --Parsing was succesful
+        parse_log:entry("User input parsed.")
     else
+        --Parsing failed, report errors
         local error_msg = "Parsing error: "..parse_error
         parse_error = "" --reset for future errors
         parse_log:entry(error_msg)
+        --Fire error
         vader_error(error_msg, true) --true is for "is_syntax_error")
     end
-    return true
 
+    --Explicit values built, now build implicit values
+
+
+    --Back
+    return true
 
 end
 
 function dummylol()
-
-    --Start a new parse
-    parse_log:clear()
-    parse_log:entry("Parsing...")
-
-    -- Update root node
-    vader = get_tool_root_node()
-
-    -- Check if this call is a PARSE called by PARSE
-    -- This can happen when splitting script into messages
-    -- in which case each message gets parsed separately
-    local is_subitem_parse
-    if parse_recursion_level then
-        is_subitem_parse = true
-        if parse_recursion_level > vader.LOOP_SAFETY_LIMIT then
-            --recursion error
-            print("NOOOOOOOOOOOOOOOOoooooooooo-ooo-o--o!")
-            return false, "recursion error", nil
-        end
-    end
 
     --vader.logs.debug:entry("Parsing message: '"..input_msg.."' ...") --debug
     

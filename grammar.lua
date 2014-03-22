@@ -325,18 +325,23 @@ G.rangedef =
 function G:get_scopepartial(scopetag_name, level, tag)
 
     local p = 
-
-        ( Cmt(((scopetag_name.double * (G.scopeflags)^-1)) , function(val)
+--[[
+        ( Cmt(((scopetag_name.double * (G.scopeflags)^-1)) , function(val, val2, val3, val4)
+            print("**************scpt double found "..level.."/"..tag)
+            return true, val
+        end))
+        --]]
+        ( (scopetag_name.double * (G.scopeflags)^-1) * Cmt( Cc(""), function(val, val2, val3, val4)
             print("**************scpt double found "..level.."/"..tag)
             return true
         end))
 
-        + ( Cmt(((scopetag_name.single * (G.rangedef)^-1 * (G.scopeflags)^-1)) , function()
+        + ( (scopetag_name.single * (G.rangedef)^-1 * (G.scopeflags)^-1) * Cmt( Cc("") , function(val, val2, val3, val4)
                 print("**************scpt single found "..level.."/"..tag)
-                return true 
+                return true
             end))
 
-        + ( Cmt(((scopetag_name.upper * (G.scopeflags)^-1)) , function()
+        + ( (scopetag_name.upper * (G.scopeflags)^-1) * Cmt( Cc("") , function(val, val2, val3, val4)
                 print("**************scpt upper found "..level.."/"..tag)
                 return true
             end))
@@ -390,32 +395,32 @@ G.scope =
                 --(G.scp_pat_lev)^-1 * (G.scp_trk_lev)^-1 * (G.scp_lin_lev)^-1 * (G.scp_col_lev)^-1 * (G.scp_sbc_lev)^-1
                 (
                     (G.scp_pat_lev) * (G.scp_trk_lev)^-1 * (G.scp_lin_lev)^-1 * (G.scp_col_lev)^-1 * (G.scp_sbc_lev)^-1
-                    * Cmt(Cc("__explicit"), function() print("****pattop") return true end)
+                    --* Cmt(Cc("__explicit"), function() print("****pattop") return true end)
                 )
                 +
                 (
                     (G.scp_trk_lev) * (G.scp_lin_lev)^-1 * (G.scp_col_lev)^-1 * (G.scp_sbc_lev)^-1
-                    * Cmt(Cc("__explicit"), function() print("****trktop") return true end)
+                    --* Cmt(Cc("__explicit"), function() print("****trktop") return true end)
                 )
                 + 
                 ( 
                     (G.scp_lin_lev) * (G.scp_col_lev)^-1 * (G.scp_sbc_lev)^-1
-                    * Cmt(Cc("__explicit"), function() print("****lintop") return true end)
+                    --* Cmt(Cc("__explicit"), function() print("****lintop") return true end)
                 )
                 + 
                 (
                     (G.scp_col_lev) * (G.scp_sbc_lev)^-1
-                    * Cmt(Cc("__explicit"), function() print("****coltop") return true end)
+                    --* Cmt(Cc("__explicit"), function() print("****coltop") return true end)
                 )
                 +
                 ( 
                     (G.scp_sbc_lev)
-                    * Cmt(Cc("__explicit"), function() print("****sbctop") return true end)
+                    --* Cmt(Cc("__explicit"), function() print("****sbctop") return true end)
                 )
             )
             
         , "SCP")
-        * Cmt(Cc("__explicit"), function() print("****scopefound") return true end)
+        --* Cmt(Cc("__explicit"), function() print("****scopefound") return true end)
     )
     + Err("invalid scope")
 
