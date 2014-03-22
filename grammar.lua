@@ -25,6 +25,12 @@ local counter_msg = 0
 local counter_msg_part = 0
 local counter_scope_part = 0
 
+function G:reset_parse_counters()
+    counter_script = 0
+    counter_msg = 0
+    counter_msg_part = 0
+    counter_scope_part = 0
+end
 
 local function ErrorCall (dummy1, dummy2, msg)
     --[[
@@ -61,7 +67,7 @@ function G:either(p, q) return p + q end
 function tonumber_(numberstring)
     --print("v1", v1)
     --This function works from Cf, normal "tonumber()" does not. Why?
-    print("tonumber_: ",numberstring, tonumber(numberstring))
+    --print("tonumber_: ",numberstring, tonumber(numberstring))
     return tonumber(numberstring)
 end
 
@@ -181,11 +187,11 @@ G.symbol_random = C(P'?')
 --Get single scopetags for "current" solvables
 local function get_single_scopepartials()
     --Returns a combined pattern to match any single scope partial
-    print("getting single scopepartials")
+    --print("getting single scopepartials")
     local single_scopepartials
     for level, tags in pairs(G.scopetag) do
         for tag, partial in pairs(tags) do
-            print(tags, tag, partial)
+            --print(tags, tag, partial)
             if not single_scopepartials then
                 --First rule
                 single_scopepartials = partial["single"]
@@ -200,24 +206,28 @@ end
 G.symbol_current = get_single_scopepartials()
 
 local function solve(val1, val2, val3)
+
     print("solving....")
     print("val1", val1)
     print("val2", val2)
     print("val3", val3)
-    return val3
+
+
+
+    return true
 end
 
 G.internal = C(
     Cmt(
-        G.symbol_current, solve
+        Cc("<value current>") * G.symbol_current, solve
         )
     +
     Cmt(
-        G.symbol_min, solve
+        Cc("<symbol min>") * G.symbol_min, solve
         )
     +
     Cmt(
-        G.symbol_max, solve
+        Cc("<symbol max>") * G.symbol_max, solve
         )
 
 )
@@ -241,9 +251,11 @@ G.ClosePar = ")" * G.ws
 
 -- Auxiliary function
 function binop_eval (v1, op, v2)
+    --[[
     print("v1", v1)
     print("v2", v2)
     print("op", op)
+    --]]
   if (op == "+") then return v1 + v2
   elseif (op == "-") then return v1 - v2
   elseif (op == "*") then return v1 * v2
@@ -332,17 +344,17 @@ function G:get_scopepartial(scopetag_name, level, tag)
         end))
         --]]
         ( (scopetag_name.double * (G.scopeflags)^-1) * Cmt( Cc(""), function(val, val2, val3, val4)
-            print("**************scpt double found "..level.."/"..tag)
+            --print("**************scpt double found "..level.."/"..tag)
             return true
         end))
 
         + ( (scopetag_name.single * (G.rangedef)^-1 * (G.scopeflags)^-1) * Cmt( Cc("") , function(val, val2, val3, val4)
-                print("**************scpt single found "..level.."/"..tag)
+                --print("**************scpt single found "..level.."/"..tag)
                 return true
             end))
 
         + ( (scopetag_name.upper * (G.scopeflags)^-1) * Cmt( Cc("") , function(val, val2, val3, val4)
-                print("**************scpt upper found "..level.."/"..tag)
+                --print("**************scpt upper found "..level.."/"..tag)
                 return true
             end))
 
@@ -432,7 +444,10 @@ G.target =      (
                     Cg( (G.scope)
                         --* ((#G.cnt_sep + #G.msg_sep) - 1)
                     , "TRG" )
-                    * Cmt(Cc("__explicit"), function() print("****msgpartinc") counter_msg_part = counter_msg_part + 1 return true end)
+                    * Cmt(Cc("__explicit"), function() 
+                        --print("****msgpartinc")
+                        counter_msg_part = counter_msg_part + 1
+                        return true end)
                 )
                 + Err("invalid target")
 G.content =     (
@@ -441,7 +456,10 @@ G.content =     (
                         + ((G.scope)^-1)
                         --* (#G.msg_sep - 1)
                     , "CNT" )
-                * Cmt(Cc("__explicit"), function() print("****msgpartinc") counter_msg_part = counter_msg_part + 1 return true end)
+                * Cmt(Cc("__explicit"), function()
+                    --print("****msgpartinc")
+                    counter_msg_part = counter_msg_part + 1
+                    return true end)
                 )
                 + Err("invalid content")
 
@@ -480,7 +498,10 @@ G.message =
 
             )
         , "MSG")
-        * Cmt(Cc("__explicit"), function() print("****msginc") counter_msg = counter_msg + 1 return true end)
+        * Cmt(Cc("__explicit"), function()
+            --print("****msginc")
+            counter_msg = counter_msg + 1
+            return true end)
     )
     + Err("invalid message")
 

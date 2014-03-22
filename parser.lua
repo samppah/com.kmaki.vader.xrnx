@@ -1103,20 +1103,21 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
     -- Update root node
     vader = get_tool_root_node()
 
---LPEG BRANCH TESTS
-print("input_msg", input_msg)
-
     --Setup LPeg for parsing
     local lulpeg = require "LuLpeg/lulpeg"
     local G = require "grammar"
     local match = lulpeg.match
 
     --Get LPeg parsed input
+    parse_log:entry("Parsing message: '"..input_msg.."' ...") --debug
     local parsed_input = match(G.script, input_msg)
 
---LPEG BRANCH TESTS
-print("parsed_input", parsed_input)
-rprint(parsed_input)
+    --LPEG BRANCH TESTS
+    print("parsed_input", parsed_input)
+    rprint(parsed_input)
+
+    --Reset parse counters
+    G:reset_parse_counters()
 
     --Check parsing success
     if parse_error == "" then
@@ -1131,8 +1132,30 @@ rprint(parsed_input)
         vader_error(error_msg, true) --true is for "is_syntax_error")
     end
 
-    --Explicit values built, now build implicit values
+    --Loop every message in script
+    for msg_index, script_table in ipairs(parsed_input) do
+        --Map shorthand
+        local TRG = script_table["TRG"]
+        local CNT = script_table["CNT"]
+        local GFL = script_table["GFL"]
+        local MCR = script_table["MCR"]
 
+        -- What kind is it?
+        local has_TRG = TRG and #TRG > 0
+        local has_CNT = CNT and #CNT > 0
+        local has_GFL = GFL and #GFL > 0
+        local has_MCR = MCR and #MCR > 0
+
+        if not (has_TRG and has_CNT) then
+            --no processing
+            vader.logs.debug:entry("No processing parts in message.")
+
+            not_implemented("No processing parts in message.")
+        end
+
+        --Explicit values built, now build implicit values
+
+    end
 
     --Back
     return true
