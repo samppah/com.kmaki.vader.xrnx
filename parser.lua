@@ -1142,9 +1142,13 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
 
         -- What kind is it?
         local has_TRG = TRG and #TRG > 0
+            and vader.logs.debug:entry("Found TRG.")
         local has_CNT = CNT and #CNT > 0
+            and vader.logs.debug:entry("Found CNT.")
         local has_GFL = GFL and #GFL > 0
+            and vader.logs.debug:entry("Found GFL.")
         local has_MCR = MCR and #MCR > 0
+            and vader.logs.debug:entry("Found MCR.")
 
         if not (has_TRG and has_CNT) then
             --no processing
