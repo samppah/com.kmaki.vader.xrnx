@@ -434,7 +434,7 @@ G.scope =
         , "SCP")
         --* Cmt(Cc("__explicit"), function() print("****scopefound") return true end)
     )
-    + Err("invalid scope")
+    --+ Err("invalid scope")
 
 --Target
 --G.target =      Cg( (G.scope) + error_"Invalid target.", "TRG" )
@@ -449,7 +449,7 @@ G.target =      (
                         counter_msg_part = counter_msg_part + 1
                         return true end)
                 )
-                + Err("invalid target")
+                --+ Err("invalid target")
 G.content =     (
                     Cg( 
                         (G.expression)
@@ -461,7 +461,7 @@ G.content =     (
                     counter_msg_part = counter_msg_part + 1
                     return true end)
                 )
-                + Err("invalid content")
+                --+ Err("invalid content")
 
 G.globalflags = Cg(( (P(1) - (G.mcr_sep + G.msg_sep))^1 ),                          "GFL" )
 G.macro =       Cg(( (P(1) - (G.msg_sep))^1 ),                                      "MCR" )
