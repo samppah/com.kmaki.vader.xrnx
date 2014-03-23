@@ -1123,8 +1123,7 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
     local parsed_input = match(G.script, input_msg)
 
     --LPEG BRANCH TESTS
-    print("parsed_input", parsed_input)
-    rprint(parsed_input)
+    rprint(parsed_input) --print user input parsed in tree format
 
     --Reset parse counters
     G:reset_parse_counters()
@@ -1143,24 +1142,30 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
     end
 
     --Loop every message in script
-    for msg_index, script_table in ipairs(parsed_input) do
+    for msg_index, msg_table in ipairs(parsed_input["SCRIPT"]) do
+
         --Map shorthand
-        local TRG = script_table["TRG"]
-        local CNT = script_table["CNT"]
-        local GFL = script_table["GFL"]
-        local MCR = script_table["MCR"]
+        local TRG = msg_table["MSG"]["TRG"]
+        local CNT = msg_table["MSG"]["CNT"]
+        local GFL = msg_table["MSG"]["GFL"]
+        local MCR = msg_table["MSG"]["MCR"]
 
         -- What kind is it?
-        local has_TRG = TRG and #TRG > 0
+        local has_TRG = not(not(TRG))
             and vader.logs.debug:entry("Found TRG.")
-        local has_CNT = CNT and #CNT > 0
-            and vader.logs.debug:entry("Found CNT.")
-        local has_GFL = GFL and #GFL > 0
-            and vader.logs.debug:entry("Found GFL.")
-        local has_MCR = MCR and #MCR > 0
-            and vader.logs.debug:entry("Found MCR.")
 
-        if not (has_TRG and has_CNT) then
+        local has_CNT = not(not(CNT))
+            and vader.logs.debug:entry("Found CNT.")
+
+        local has_GFL = not(not(GFL))
+            and vader.logs.debug:entry("Found GFL.")
+            and not_implemented("Global flags")
+
+        local has_MCR = not(not(MCR))
+            and vader.logs.debug:entry("Found MCR.")
+            and not_implemented("Macro part")
+
+        if (not has_TRG) and (not has_CNT) then
             --no processing
             vader.logs.debug:entry("No processing parts in message.")
 
