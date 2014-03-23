@@ -81,6 +81,8 @@ local function check_macro_expand(msg_tokenstream)
 end
 --]]
 
+--[[
+--Tokenize function not needed in LPeg branch
 local function tokenize(input_charstream)
     -- Takes in a charstream, returns a tokenstream
     -- This is returned as result of tokenizing
@@ -202,13 +204,13 @@ local function tokenize(input_charstream)
                 this_match_string = match
                 this_match_type = token_type
                 this_match_priority = tokenize_data[1]
-                --[[ --commented 28.2. seemed unnecessary
-                    if tokenize_data[4] then
-                        this_match_properties = table.copy(tokenize_data[4])
-                    else
-                        this_match_properties = table.create()
-                    end
-                --]]
+                -- --commented 28.2. seemed unnecessary
+                    --if tokenize_data[4] then
+                        --this_match_properties = table.copy(tokenize_data[4])
+                    --else
+                        --this_match_properties = table.create()
+                    --end
+                --
 
                 --print("found match:"..compare_table[1].."  /  "..match) --debug
 
@@ -371,8 +373,12 @@ local function tokenize(input_charstream)
     -- Done
     return tokens
 end
+--Tokenize function not needed in LPeg branch
+--]]
 
 
+--[[
+--Validate function must be reformatted in LPeg branch
 local function validate(input_tokenstream, parse_recursion_level, is_successive_message)
     -- This splits input_tokenstream into its components and generates a tree structure.
 
@@ -1088,6 +1094,10 @@ local function validate(input_tokenstream, parse_recursion_level, is_successive_
     return script
 
 end
+--Validate function must be reformatted in LPeg branch
+--]]
+
+
 
 ----------------------------------------------------
 -- Main functions
@@ -1184,7 +1194,7 @@ function dummylol()
         local input_tokenstream = tokenize(input_charstream) -- Return tokenstream 
         parse_log:entry("Tokenized succesfully.") --debug
         --[[
-        if not input_tokenstream then
+        --if not input_tokenstream then
             --vader.logs.debug:entry("Invalid input: "..input_msg) --debug
             --vader.logs.main:entry("Invalid input: "..input_msg)
             --TODO:error handling here!
