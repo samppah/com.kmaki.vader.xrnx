@@ -411,51 +411,55 @@ G.mcr_sep = P'@'
 G.rng_sep = P'..'
 
 
-
 --Range
-G.rangedef =
-    Cg(
-    	--Unnested
+
+G.rangedef_unnested =
         Ct(
             (
 
                 Cg(
                     G.expression
                 , "BEG_VAL")
-                * Cg(
-                    (G.rng_sep * G.expression)
-                , "END_VAL")^0
 
+		* (
 
+			Cg(
+			    (G.rng_sep * G.expression)
+			    +
+			    (G.rng_sep * Cc("max_value"))
 
-                + Cg(
-                    (G.rng_sep * G.expression)
+			, "END_VAL")
+
+		)^-1
+
+                +
+
+		(
+		
+		Cg(
+                    (G.rng_sep * Cc("current_value"))
+                , "BEG_VAL")
+		*
+		Cg(
+                    (G.expression)
                 , "END_VAL")
+		)
 
 
             )
         )
+
+
+G.rangedef =
+    Cg(
+    	--TODO: does not handle nested nests. -> Grammar to do this?
+    	--Unnested
+    	G.rangedef_unnested
 	+
 	--Nested 
         Ct(
 	    P'(' *
-            (
-
-                Cg(
-                    G.expression
-                , "BEG_VAL")
-                * Cg(
-                    (G.rng_sep * G.expression)
-                , "END_VAL")^0
-
-
-
-                + Cg(
-                    (G.rng_sep * G.expression)
-                , "END_VAL")
-
-
-            )
+	    G.rangedef_unnested
 	    * P')'
         )
 
