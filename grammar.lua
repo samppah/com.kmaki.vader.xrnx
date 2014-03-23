@@ -65,10 +65,15 @@ function G:either(p, q) return p + q end
 
 --Conversions for LPeg parser
 function tonumber_(numberstring)
-    --print("v1", v1)
-    --This function works from Cf, normal "tonumber()" does not. Why?
-    --print("tonumber_: ",numberstring, tonumber(numberstring))
-    return tonumber(numberstring)
+	print("tonumber_ :"..numberstring)
+	if type(numberstring) == "number" then
+		return numberstring
+	else
+	    --print("v1", v1)
+	    --This function works from Cf, normal "tonumber()" does not. Why?
+	    --print("tonumber_: ",numberstring, tonumber(numberstring))
+	    return tonumber(numberstring)
+	end
 end
 
 
@@ -232,13 +237,118 @@ G.internal = C(
 
 )
 
-G.value = C(G.hex + G.float + G.internal) * G.ws
+local function note_convert(note)
+    --converts a note string to note value and vice versa
+    --data
+    print("note_convert: ", note)
+    local specials = {
+        "OFF",
+        "---"
+    }
+    local notestrings_upper = {
+        "C-",
+        "C#",
+        "D-",
+        "D#",
+        "E-",
+        "F-",
+        "F#",
+        "G-",
+        "G#",
+        "A-",
+        "A#",
+        "B-"
+    }
+    local notestrings_lower = {
+        "c-",
+        "c#",
+        "d-",
+        "d#",
+        "e-",
+        "f-",
+        "f#",
+        "g-",
+        "g#",
+        "a-",
+        "a#",
+        "b-"
+    }
+    --subfunctions nstr_to_nval and nval_to_nstr
+    local function nstr_to_nval(nstr)
+        --converts a notestring (nstr) into a note value 
+        --catch errors
+        assert(type(nstr) == "string", "Notestring type must be a string, got ".. type(nstr))
+        assert(#nstr == 3, "Notestring must be exactly 3 characters long, got ".. #nstr)
 
-G.notevalue = C(P'0n' * S'AaBbCcDdEeFfGg' * '#-' * G.digit)
+        local special = table.find(specials, string.sub(nstr,1,3))
+        local note = table.find(notestrings_upper, string.sub(nstr,1,2)) or table.find(notestrings_lower, string.sub(nstr,1,2))
+        local octave = tonumber(string.sub(nstr,3))
+       
+        --catch errors
+        assert(note or special, "Invalid notestring: " .. ((string.sub(nstr,1,3)) or "nil") .. " , expected format example: C-4")
+        if note then
+          assert(type(octave) == "number", "Invalid notestring octave: " .. (string.sub(nstr,3) or "nil") .. " , expected a number (0-9)")
+        end
 
+        --the math
+        local nval 
+        if note then
+            nval = note + (octave*12) - 1
+        else
+            if nstr == "OFF" then
+                nval = 120
+            else
+                nval = 121 --empty
+            end
+        end
 
-------From LPeg examples
-G.balanced_parentheses_element = P{ "(" * ((1 - S"()") + V(1))^0 * ")" }
+        return nval
+    end
+
+    --------
+
+    local function nval_to_nstr(nval) 
+        --converts a note value (nval) into a notestring
+        --catch errors
+        assert(type(nval) == "number", "Note value format must be a number, got" ..type(nval))
+        assert(nval >= 0 and nval <= 121, "Note value range 0-121, got " ..nval)
+
+        --the abc
+        local nstr
+        if nval > 119 then
+            --special
+            if nval == 120 then
+                nstr = "OFF"
+            else
+                nstr = "---"
+            end
+        else
+            --regular note
+            local octave = math.floor (nval/12)
+            local note = nval - (12*octave)
+            nstr = notestrings[note+1] .. octave
+        end
+        
+        return nstr
+    end
+
+    --------
+
+    --main
+    assert(type(note) == "number" or type(note) == "string", "note_conv excpects number or string")
+    local converted_note
+    if type(note) == "number" then
+        converted_note = nval_to_nstr(note)
+    else
+        converted_note = nstr_to_nval(note)
+    end
+    print("note_convert input: "..note..", returning: "..converted_note)
+    return converted_note
+end
+
+G.notevalue = P'0n' * C(S'AaBbCcDdEeFfGg' * S'#-' * G.digit)/note_convert
+
+G.value = C(G.hex) + G.notevalue + C(G.float) + C(G.internal) * G.ws
 
 
 ------From LPeg examples
