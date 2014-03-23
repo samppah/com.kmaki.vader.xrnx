@@ -3,6 +3,10 @@
 #Mac stuff
 .DS_Store
 
+#Win? stuff
+*.*~
+.*~
+
 #Vim stuff
 #swapfiles
 .*.*.sw?
