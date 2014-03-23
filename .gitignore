@@ -4,6 +4,7 @@
 .DS_Store
 
 #Win? stuff
+#These tmpfiles appeared at work comp (Win7 / gvim)
 *.*~
 .*~
 
