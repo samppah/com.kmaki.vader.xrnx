@@ -415,6 +415,7 @@ G.rng_sep = P'..'
 --Range
 G.rangedef =
     Cg(
+    	--Unnested
         Ct(
             (
 
@@ -434,6 +435,30 @@ G.rangedef =
 
             )
         )
+	+
+	--Nested 
+        Ct(
+	    P'(' *
+            (
+
+                Cg(
+                    G.expression
+                , "BEG_VAL")
+                * Cg(
+                    (G.rng_sep * G.expression)
+                , "END_VAL")^0
+
+
+
+                + Cg(
+                    (G.rng_sep * G.expression)
+                , "END_VAL")
+
+
+            )
+	    * P')'
+        )
+
     , "RNG_DEF") 
     --+ Err("invalid range") --This does not work with "MAYBE RANGE" type situations. Errors out.
 
