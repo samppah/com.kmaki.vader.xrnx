@@ -421,7 +421,16 @@ function fn_eval(...)
     local fn_id = arg[1]
     local argument_table = arg[2]
     if fn_id == "?" then 
-	    return math.random(arg[2][1])
+            if argument_table[2] then
+                local low_bound = math.min(argument_table[1], argument_table[2])
+                local high_bound = math.max(argument_table[1], argument_table[2])
+                local diff = high_bound - low_bound
+                return math.random(diff) + low_bound
+            elseif argument_table[1] then
+                return math.random(argument_table[1])
+            else
+                not_implemented("Random function with no arguments")
+            end
     end
     return 0
 end
