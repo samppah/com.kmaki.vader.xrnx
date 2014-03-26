@@ -449,7 +449,7 @@ local function directives_dispatch()
             end
             --]]
             
-            -- Reset flags for default, for any next one
+            -- Reset flags for default, for following errors
             vader.DEBUG_CRITICAL_ERROR = true
             vader.DEBUG_UNHANDLED_ERROR = true
             vader.DEBUG_DEV_TEST = false
@@ -482,7 +482,7 @@ local function directives_dispatch()
             --[[
             An unhandled error is something that was not caught
             with a vader_error() or vader_assert(). In other words,
-            something is now very wrong with vader code.
+            something is now found to be very wrong with vader code.
             --]]
             if vader.DEBUG_UNHANDLED_ERROR then
                 vader.logs.main:entry("UNHANDLED ERROR")
