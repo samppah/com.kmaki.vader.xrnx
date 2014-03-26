@@ -2833,350 +2833,353 @@ do
         vader.logs.debug:entry(string.format(formatstring_2, (self.level or "nil"), self.origin, "start "..(self.range.start_value or "nil"), "end "..(self.range.end_value or "nil")))
     end
 end
+
+----  class "ScopeObject"
+----  -- This is used to describe an iteration scope in 0.1
+----  do
+----      function ScopeObject:__init(cxt)
+----          local method_log = register_method_log(type(self)..":__init()")
+----          
+----          ------------------
+----          -- Error catching
+----          vader_assert(type(cxt) == "TokenTree" or type(cxt) == "nil", "Tried to init a ScopeObject with cxt type:"..type(cxt)..". Use a TokenTree object or nil.")
+----          -----------------
+----          
+----          -- Create the partials table
+----          self.scope = table.create()
+----          self.topmost_index = nil
+----          self.topmost_name = nil
+----          self.lowest_index = nil
+----          self.lowest_name = nil
+----          --
+----          local scp_pattern_level = ScopePartialObject()
+----          scp_pattern_level.level = "pattern_level"
+----          scp_pattern_level.level_index = 1
+----          self.scope:insert(scp_pattern_level)
+----          --
+----          local scp_track_level = ScopePartialObject()
+----          scp_track_level.level = "track_level"  
+----          scp_pattern_level.level_index = 2
+----          self.scope:insert(scp_track_level)
+----          --
+----          local scp_line_level = ScopePartialObject()
+----          scp_line_level.level = "line_level" 
+----          scp_pattern_level.level_index = 3
+----          self.scope:insert(scp_line_level)
+----          --
+----          local scp_column_level = ScopePartialObject()
+----          scp_column_level.level = "column_level" 
+----          scp_pattern_level.level_index = 4
+----          self.scope:insert(scp_column_level)
+----          --
+----          local scp_subcolumn_level_note = ScopePartialObject()
+----          scp_subcolumn_level_note.level = "subcolumn_level_note" 
+----          scp_pattern_level.level_index = 5
+----          self.scope:insert(scp_subcolumn_level_note)
+----          --
+----          local scp_subcolumn_level_effect = ScopePartialObject()
+----          scp_subcolumn_level_effect.level = "subcolumn_level_effect" 
+----          scp_pattern_level.level_index = 6
+----          self.scope:insert(scp_subcolumn_level_effect)
+----          --
+----          --Derive range
+----          if cxt then
+----              local process_title = type(self)..":__init() / Derive range"
+----              local processing_error
+----              local processing_notes = table.create()
+----              --Get all scope partials from this context in a table
+----              local user_partials = table.create()
+----                  
+----              for index = 1, #cxt do
+----                  local this_partial = cxt:branch(index)
+----                  local this_token = this_partial.name
+----                  if this_token == "<scope partial>" then
+----                      --Get scope, range start, end
+----                      local this_scope = this_partial.scope
+----                      local this_rangedef = this_partial:branch(2)
+----                      local this_range = this_rangedef:branch(1)
+----                      local this_start_value = this_range:branch(1).resolved
+----                      local this_end_value = this_range:branch(2).resolved
+----                      
+----                      --Set skip_empty flag and other range extras if needed
+----                      local this_range_flags = this_rangedef:branch(2)
+----                      local this_skip_empty
+----                      if this_range_flags:find_token_type("<symbol non empty>") then
+----                          this_skip_empty = true
+----                      else
+----                          this_skip_empty = false
+----                      end
+----  
+----                      --Generate partial, insert
+----                      local new_user_partial = ScopePartialObject()
+----                      new_user_partial.level = nil
+----                      new_user_partial.name = this_scope
+----                      new_user_partial.origin = "user"
+----  
+----                      local n_u_p_range = RangeObject()
+----                      n_u_p_range.start_value = this_start_value
+----                      n_u_p_range.end_value = this_end_value
+----                      n_u_p_range.skip_empty = this_skip_empty
+----  
+----                      new_user_partial.range = n_u_p_range
+----  
+----                      user_partials:insert(new_user_partial)
+----  
+----                      vader.logs.debug:entry("collected user partial:"..new_user_partial.name) --debug
+----  
+----                  end
+----              end
+----              --Select partials to use in scope
+----              local function select_partial(scope_name)
+----                  -- This searches the local user_partials-table for partialstring, and
+----                  -- returns partialstring if found, nil if not
+----                  -- This is a subfunction for the selection loop
+----                  for _, partial in pairs(user_partials) do
+----                      --if user_partials:find(partialstring) then
+----                      --vader.logs.debug:entry("comparing: "..scope_name.."  /  "..partial.name) --debug
+----                      if partial.name == scope_name then
+----                          --vader.logs.debug:entry("found "..scope_name) --debug
+----                          return partial
+----                      end
+----                  end
+----                  return nil
+----              end
+----              for level_index, level in ipairs(vader.lex.scope_levels) do
+----                  --This loop runs through vader.lex.scope_levels and
+----                  --selects the topmost of all user inputted partials within a scope level [n]
+----                  --for each level, sets either the default scope[n].name or the user inputted scope[n].name
+----                  --also sets the scope[n].origin property
+----                  
+----                  --Get the level name
+----                  local level_name
+----                  for name, _ in pairs(level) do
+----                      level_name = name
+----                  end
+----                  --Run through items in level table
+----                  for scope_index, scope_name in ripairs(level[level_name]) do
+----                      local defined_partial = select_partial(scope_name)
+----                      local default_partialstring = level[level_name][1]
+----                      --vader.logs.debug:entry("searching scope:"..scope_name) --debug
+----                      if defined_partial then
+----                          --TODO:here is some fishy business: why is the first one
+----                          --defining .level and the second one .name ???
+----                          self.scope[level_index] = defined_partial
+----                          self.scope[level_index].level = level_name
+----                          --self.scope[level_index].name = defined_partialstring
+----                          self.scope[level_index].origin = "user"
+----                          break
+----                      else
+----                          self.scope[level_index].name = default_partialstring
+----                          self.scope[level_index].origin = "parser"
+----                      end
+----                  end
+----                  --vader.logs.debug:entry("searched level:"..level_name..". No more partials!") --debug
+----              end
+----  
+----              --[[
+----              --debug
+----              for _, partial in ipairs(self.scope) do
+----                  partial:dump()
+----              end
+----              --]]
+----  
+----              --Compute full range from sparse partial definition
+----              --Need topmost, lowest user defined levels
+----              local topmost_name = nil
+----              local topmost_index = nil
+----              for scope_level_index, scope_level in ipairs(self.scope) do
+----                  if not topmost_name and scope_level.origin == "user" then
+----                      topmost_name = scope_level.name
+----                      topmost_index = scope_level_index
+----                      --vader.logs.debug:entry("topmost found:"..topmost_name) --debug
+----                      break
+----                  end
+----              end
+----              if not topmost_name then
+----                  vader_error("Could not find topmost defined level in scope!")
+----              end
+----  
+----              local lowest_name = nil
+----              local lowest_index = nil
+----              for scope_level_index, scope_level in ripairs(self.scope) do
+----                  if not lowest_name and scope_level.origin == "user" then
+----                      lowest_name = scope_level.name
+----                      lowest_index = scope_level_index
+----                      --vader.logs.debug:entry("lowest found:"..lowest_name) --debug
+----                      break
+----                  end
+----              end
+----              if not lowest_name then
+----                  vader_error("Could not find lowest defined level in scope!")
+----              end
+----              
+----              -- Assign to object properties
+----              self.topmost_index = topmost_index
+----              self.topmost_name = topmost_name
+----              self.lowest_index = lowest_index
+----              self.lowest_name = lowest_name
+----  
+----              --Now haz calculated topmost, lowest defined ranges. Make rest up
+----              vader.logs.debug:entry("defined lowest:"..lowest_name.." / "..lowest_index..", topmost:"..topmost_name.."  /  "..topmost_index)
+----  
+----              for level_index, level_partial in ipairs(self.scope) do
+----                  --This loops creates parser generated 'ghost' ranges for the scope
+----  
+----                  --TODO: must assign only one subcolumn value, preference is from column level
+----                  if level_index < topmost_index then
+----                      --level index is above topmost
+----                      --apply 'current' range
+----                      --vader.logs.debug:entry(level_partial.name)
+----                      local this_range = level_partial.range
+----                      local solve_stream = TokenStream("solve_stream")
+----                      local solve_atom = TokenTree("solve_atom", solve_stream)
+----                      solve_atom.scope = level_partial.name
+----                      solve_stream:push(Token("<value current>", "<value current>"))
+----                      local notes
+----                      this_range.start_value, processing_error, notes = solve_lookup(solve_atom)
+----                      if not this_range.start_value then
+----                          return false, processing_error, nil
+----                      elseif notes then
+----                          for _, note in ipairs(notes) do
+----                              processing_notes:insert(note)
+----                          end
+----                      end
+----                      this_range.end_value = this_range.start_value
+----                      --vader.logs.debug:entry("set parser partial start, end:"..level_partial.range.start_value..", "..level_partial.range.end_value) --debug
+----                      
+----                      
+----                  elseif level_index > lowest_index then
+----                      --level index is below lowest_index
+----                      --apply '<no_range>' -range
+----                      --vader.logs.debug:entry(level_partial.name)
+----                      local this_range = level_partial.range
+----                      this_range.start_value = nil
+----                      this_range.end_value = nil
+----                  elseif level_partial.origin == "parser" then
+----                      --level index is between topmost and lowest
+----                      --and is not defined by user
+----                      --apply 'each and every' -range
+----                      --vader.logs.debug:entry(level_partial.name)
+----                      local this_range = level_partial.range
+----  
+----                      local solve_stream = TokenStream("solve_stream")
+----                      local solve_atom = TokenTree("solve_atom", solve_stream)
+----                      solve_atom.scope = level_partial.name
+----                      solve_stream:push(Token("<symbol min>", "<symbol min>"))
+----                      local notes
+----                      this_range.start_value, processing_error, notes = solve_lookup(solve_atom)
+----                      if not this_range.start_value then
+----                          return false, processing_error, nil
+----                      elseif notes then
+----                          for _, note in ipairs(notes) do
+----                              processing_notes:insert(note)
+----                          end
+----                      end
+----  
+----                      local solve_stream = TokenStream("solve_stream")
+----                      local solve_atom = TokenTree("solve_atom", solve_stream)
+----                      solve_atom.scope = level_partial.name
+----                      solve_stream:push(Token("<symbol max>", "<symbol max>"))
+----                      local notes
+----                      this_range.end_value, processing_error, notes = solve_lookup(solve_atom)
+----                      if not this_range.end_value then
+----                          return false, processing_error, nil
+----                      elseif notes then
+----                          for _, note in ipairs(notes) do
+----                              processing_notes:insert(note)
+----                          end
+----                      end
+----                  end
+----              end
+----  
+----          else
+----              --no context_tree supplied.
+----              vader.logs.debug:entry("Some weird shit happ'nin, boss")
+----          return self, nil, processing_notes
+----          end
+----      end
+----      function ScopeObject:dump()
+----          --[[
+----          Dump Scope info to debug log
+----          --]]
+----          local method_log = register_method_log(type(self)..":dump()")
+----  
+----          vader.logs.debug:entry("ScopeObject dump():")
+----          vader.logs.debug:entry("--")
+----          vader.logs.debug:entry("PATTERN LEVEL - " .. (self.scope[1].name or "nil"))
+----          self.scope[1]:dump()
+----          vader.logs.debug:entry("--")
+----          vader.logs.debug:entry("TRACK LEVEL - " .. (self.scope[2].name or "nil"))
+----          self.scope[2]:dump()
+----          vader.logs.debug:entry("--")
+----          vader.logs.debug:entry("LINE LEVEL - " .. (self.scope[3].name or "nil"))
+----          self.scope[3]:dump()
+----          vader.logs.debug:entry("--")
+----          vader.logs.debug:entry("COLUMN LEVEL - " .. (self.scope[4].name or "nil"))
+----          self.scope[4]:dump()
+----          vader.logs.debug:entry("--")
+----          vader.logs.debug:entry("SUBCOLUMN LEVEL NOTE - " .. (self.scope[5].name or "nil"))
+----          self.scope[5]:dump()
+----          vader.logs.debug:entry("--")
+----          vader.logs.debug:entry("SUBCOLUMN LEVEL EFFECT- " .. (self.scope[6].name or "nil"))
+----          self.scope[6]:dump()
+----          vader.logs.debug:entry("--")
+----      end
+----      function ScopeObject:partial(level_index)
+----          --[[
+----          Returns a partial by level_index
+----          --]]
+----          local method_log = register_method_log(type(self)..":partial()")
+----  
+----          return self.scope[level_index]
+----      end
+----      function ScopeObject:get_object_pointed_at()
+----          --[[
+----          Returns the CURRENT object that is pointed at in the scope.
+----          i.e. the object that has "lowest index",
+----          i.e. the final object user is pointing at with scope.
+----          --]]
+----          local method_log = register_method_log(type(self)..":get_object_pointed_at()")
+----  
+----          local low_i = self.lowest_index
+----          local low_name = self.lowest_name
+----          --[[
+----          local valid_type = {
+----              "pattern",
+----              "pattern_track",
+----              "pattern_track_line",
+----              "note_column",
+----              "effect_column",
+----          }
+----          --]]
+----          if low_name == "pattern" then
+----              return get_selected("pattern")
+----          elseif low_name == "track" then
+----              return get_selected("pattern_track")
+----          elseif low_name == "line" then
+----              return get_selected("pattern_track_line")
+----          elseif low_name == "note_column" then
+----              return get_selected("note_column")
+----          elseif low_name == "effect_column" then
+----              return get_selected("effect_column")
+----          else
+----              local error = "Could not define low_name in get_object_pointed_at()"
+----              return false, error, nil
+----          end
+----      end
+----  end
+
+
 class "ScopeObject"
--- This is used to describe an iteration scope in 0.1
-do
-    function ScopeObject:__init(cxt)
-        local method_log = register_method_log(type(self)..":__init()")
-        
-        ------------------
-        -- Error catching
-        vader_assert(type(cxt) == "TokenTree" or type(cxt) == "nil", "Tried to init a ScopeObject with cxt type:"..type(cxt)..". Use a TokenTree object or nil.")
-        -----------------
-        
-        -- Create the partials table
-        self.scope = table.create()
-        self.topmost_index = nil
-        self.topmost_name = nil
-        self.lowest_index = nil
-        self.lowest_name = nil
-        --
-        local scp_pattern_level = ScopePartialObject()
-        scp_pattern_level.level = "pattern_level"
-        scp_pattern_level.level_index = 1
-        self.scope:insert(scp_pattern_level)
-        --
-        local scp_track_level = ScopePartialObject()
-        scp_track_level.level = "track_level"  
-        scp_pattern_level.level_index = 2
-        self.scope:insert(scp_track_level)
-        --
-        local scp_line_level = ScopePartialObject()
-        scp_line_level.level = "line_level" 
-        scp_pattern_level.level_index = 3
-        self.scope:insert(scp_line_level)
-        --
-        local scp_column_level = ScopePartialObject()
-        scp_column_level.level = "column_level" 
-        scp_pattern_level.level_index = 4
-        self.scope:insert(scp_column_level)
-        --
-        local scp_subcolumn_level_note = ScopePartialObject()
-        scp_subcolumn_level_note.level = "subcolumn_level_note" 
-        scp_pattern_level.level_index = 5
-        self.scope:insert(scp_subcolumn_level_note)
-        --
-        local scp_subcolumn_level_effect = ScopePartialObject()
-        scp_subcolumn_level_effect.level = "subcolumn_level_effect" 
-        scp_pattern_level.level_index = 6
-        self.scope:insert(scp_subcolumn_level_effect)
-        --
-        --Derive range
-        if cxt then
-            local process_title = type(self)..":__init() / Derive range"
-            local processing_error
-            local processing_notes = table.create()
-            --Get all scope partials from this context in a table
-            local user_partials = table.create()
-                
-            for index = 1, #cxt do
-                local this_partial = cxt:branch(index)
-                local this_token = this_partial.name
-                if this_token == "<scope partial>" then
-                    --Get scope, range start, end
-                    local this_scope = this_partial.scope
-                    local this_rangedef = this_partial:branch(2)
-                    local this_range = this_rangedef:branch(1)
-                    local this_start_value = this_range:branch(1).resolved
-                    local this_end_value = this_range:branch(2).resolved
-                    
-                    --Set skip_empty flag and other range extras if needed
-                    local this_range_flags = this_rangedef:branch(2)
-                    local this_skip_empty
-                    if this_range_flags:find_token_type("<symbol non empty>") then
-                        this_skip_empty = true
-                    else
-                        this_skip_empty = false
-                    end
-
-                    --Generate partial, insert
-                    local new_user_partial = ScopePartialObject()
-                    new_user_partial.level = nil
-                    new_user_partial.name = this_scope
-                    new_user_partial.origin = "user"
-
-                    local n_u_p_range = RangeObject()
-                    n_u_p_range.start_value = this_start_value
-                    n_u_p_range.end_value = this_end_value
-                    n_u_p_range.skip_empty = this_skip_empty
-
-                    new_user_partial.range = n_u_p_range
-
-                    user_partials:insert(new_user_partial)
-
-                    vader.logs.debug:entry("collected user partial:"..new_user_partial.name) --debug
-
-                end
-            end
-            --Select partials to use in scope
-            local function select_partial(scope_name)
-                -- This searches the local user_partials-table for partialstring, and
-                -- returns partialstring if found, nil if not
-                -- This is a subfunction for the selection loop
-                for _, partial in pairs(user_partials) do
-                    --if user_partials:find(partialstring) then
-                    --vader.logs.debug:entry("comparing: "..scope_name.."  /  "..partial.name) --debug
-                    if partial.name == scope_name then
-                        --vader.logs.debug:entry("found "..scope_name) --debug
-                        return partial
-                    end
-                end
-                return nil
-            end
-            for level_index, level in ipairs(vader.lex.scope_levels) do
-                --This loop runs through vader.lex.scope_levels and
-                --selects the topmost of all user inputted partials within a scope level [n]
-                --for each level, sets either the default scope[n].name or the user inputted scope[n].name
-                --also sets the scope[n].origin property
-                
-                --Get the level name
-                local level_name
-                for name, _ in pairs(level) do
-                    level_name = name
-                end
-                --Run through items in level table
-                for scope_index, scope_name in ripairs(level[level_name]) do
-                    local defined_partial = select_partial(scope_name)
-                    local default_partialstring = level[level_name][1]
-                    --vader.logs.debug:entry("searching scope:"..scope_name) --debug
-                    if defined_partial then
-                        --TODO:here is some fishy business: why is the first one
-                        --defining .level and the second one .name ???
-                        self.scope[level_index] = defined_partial
-                        self.scope[level_index].level = level_name
-                        --self.scope[level_index].name = defined_partialstring
-                        self.scope[level_index].origin = "user"
-                        break
-                    else
-                        self.scope[level_index].name = default_partialstring
-                        self.scope[level_index].origin = "parser"
-                    end
-                end
-                --vader.logs.debug:entry("searched level:"..level_name..". No more partials!") --debug
-            end
-
-            --[[
-            --debug
-            for _, partial in ipairs(self.scope) do
-                partial:dump()
-            end
-            --]]
-
-            --Compute full range from sparse partial definition
-            --Need topmost, lowest user defined levels
-            local topmost_name = nil
-            local topmost_index = nil
-            for scope_level_index, scope_level in ipairs(self.scope) do
-                if not topmost_name and scope_level.origin == "user" then
-                    topmost_name = scope_level.name
-                    topmost_index = scope_level_index
-                    --vader.logs.debug:entry("topmost found:"..topmost_name) --debug
-                    break
-                end
-            end
-            if not topmost_name then
-                vader_error("Could not find topmost defined level in scope!")
-            end
-
-            local lowest_name = nil
-            local lowest_index = nil
-            for scope_level_index, scope_level in ripairs(self.scope) do
-                if not lowest_name and scope_level.origin == "user" then
-                    lowest_name = scope_level.name
-                    lowest_index = scope_level_index
-                    --vader.logs.debug:entry("lowest found:"..lowest_name) --debug
-                    break
-                end
-            end
-            if not lowest_name then
-                vader_error("Could not find lowest defined level in scope!")
-            end
-            
-            -- Assign to object properties
-            self.topmost_index = topmost_index
-            self.topmost_name = topmost_name
-            self.lowest_index = lowest_index
-            self.lowest_name = lowest_name
-
-            --Now haz calculated topmost, lowest defined ranges. Make rest up
-            vader.logs.debug:entry("defined lowest:"..lowest_name.." / "..lowest_index..", topmost:"..topmost_name.."  /  "..topmost_index)
-
-            for level_index, level_partial in ipairs(self.scope) do
-                --This loops creates parser generated 'ghost' ranges for the scope
-
-                --TODO: must assign only one subcolumn value, preference is from column level
-                if level_index < topmost_index then
-                    --level index is above topmost
-                    --apply 'current' range
-                    --vader.logs.debug:entry(level_partial.name)
-                    local this_range = level_partial.range
-                    local solve_stream = TokenStream("solve_stream")
-                    local solve_atom = TokenTree("solve_atom", solve_stream)
-                    solve_atom.scope = level_partial.name
-                    solve_stream:push(Token("<value current>", "<value current>"))
-                    local notes
-                    this_range.start_value, processing_error, notes = solve_lookup(solve_atom)
-                    if not this_range.start_value then
-                        return false, processing_error, nil
-                    elseif notes then
-                        for _, note in ipairs(notes) do
-                            processing_notes:insert(note)
-                        end
-                    end
-                    this_range.end_value = this_range.start_value
-                    --vader.logs.debug:entry("set parser partial start, end:"..level_partial.range.start_value..", "..level_partial.range.end_value) --debug
-                    
-                    
-                elseif level_index > lowest_index then
-                    --level index is below lowest_index
-                    --apply '<no_range>' -range
-                    --vader.logs.debug:entry(level_partial.name)
-                    local this_range = level_partial.range
-                    this_range.start_value = nil
-                    this_range.end_value = nil
-                elseif level_partial.origin == "parser" then
-                    --level index is between topmost and lowest
-                    --and is not defined by user
-                    --apply 'each and every' -range
-                    --vader.logs.debug:entry(level_partial.name)
-                    local this_range = level_partial.range
-
-                    local solve_stream = TokenStream("solve_stream")
-                    local solve_atom = TokenTree("solve_atom", solve_stream)
-                    solve_atom.scope = level_partial.name
-                    solve_stream:push(Token("<symbol min>", "<symbol min>"))
-                    local notes
-                    this_range.start_value, processing_error, notes = solve_lookup(solve_atom)
-                    if not this_range.start_value then
-                        return false, processing_error, nil
-                    elseif notes then
-                        for _, note in ipairs(notes) do
-                            processing_notes:insert(note)
-                        end
-                    end
-
-                    local solve_stream = TokenStream("solve_stream")
-                    local solve_atom = TokenTree("solve_atom", solve_stream)
-                    solve_atom.scope = level_partial.name
-                    solve_stream:push(Token("<symbol max>", "<symbol max>"))
-                    local notes
-                    this_range.end_value, processing_error, notes = solve_lookup(solve_atom)
-                    if not this_range.end_value then
-                        return false, processing_error, nil
-                    elseif notes then
-                        for _, note in ipairs(notes) do
-                            processing_notes:insert(note)
-                        end
-                    end
-                end
-            end
-
-        else
-            --no context_tree supplied.
-            vader.logs.debug:entry("Some weird shit happ'nin, boss")
-        return self, nil, processing_notes
-        end
-    end
-    function ScopeObject:dump()
-        --[[
-        Dump Scope info to debug log
-        --]]
-        local method_log = register_method_log(type(self)..":dump()")
-
-        vader.logs.debug:entry("ScopeObject dump():")
-        vader.logs.debug:entry("--")
-        vader.logs.debug:entry("PATTERN LEVEL - " .. (self.scope[1].name or "nil"))
-        self.scope[1]:dump()
-        vader.logs.debug:entry("--")
-        vader.logs.debug:entry("TRACK LEVEL - " .. (self.scope[2].name or "nil"))
-        self.scope[2]:dump()
-        vader.logs.debug:entry("--")
-        vader.logs.debug:entry("LINE LEVEL - " .. (self.scope[3].name or "nil"))
-        self.scope[3]:dump()
-        vader.logs.debug:entry("--")
-        vader.logs.debug:entry("COLUMN LEVEL - " .. (self.scope[4].name or "nil"))
-        self.scope[4]:dump()
-        vader.logs.debug:entry("--")
-        vader.logs.debug:entry("SUBCOLUMN LEVEL NOTE - " .. (self.scope[5].name or "nil"))
-        self.scope[5]:dump()
-        vader.logs.debug:entry("--")
-        vader.logs.debug:entry("SUBCOLUMN LEVEL EFFECT- " .. (self.scope[6].name or "nil"))
-        self.scope[6]:dump()
-        vader.logs.debug:entry("--")
-    end
-    function ScopeObject:partial(level_index)
-        --[[
-        Returns a partial by level_index
-        --]]
-        local method_log = register_method_log(type(self)..":partial()")
-
-        return self.scope[level_index]
-    end
-    function ScopeObject:get_object_pointed_at()
-        --[[
-        Returns the CURRENT object that is pointed at in the scope.
-        i.e. the object that has "lowest index",
-        i.e. the final object user is pointing at with scope.
-        --]]
-        local method_log = register_method_log(type(self)..":get_object_pointed_at()")
-
-        local low_i = self.lowest_index
-        local low_name = self.lowest_name
-        --[[
-        local valid_type = {
-            "pattern",
-            "pattern_track",
-            "pattern_track_line",
-            "note_column",
-            "effect_column",
-        }
-        --]]
-        if low_name == "pattern" then
-            return get_selected("pattern")
-        elseif low_name == "track" then
-            return get_selected("pattern_track")
-        elseif low_name == "line" then
-            return get_selected("pattern_track_line")
-        elseif low_name == "note_column" then
-            return get_selected("note_column")
-        elseif low_name == "effect_column" then
-            return get_selected("effect_column")
-        else
-            local error = "Could not define low_name in get_object_pointed_at()"
-            return false, error, nil
-        end
-    end
-end
-class "ScopeObject_2"
 -- This is used to describe an iteration scope in 0.2
--- Point a scope in parsed table, init the object with myscope = ScopeObject_2(pointed_table)
+-- Point a scope in parsed table, init the object with myscope = ScopeObject(pointed_table)
 do
-    function ScopeObject_2:__init(parsed_table)
+    function ScopeObject:__init(parsed_table)
         local method_log = register_method_log(type(self)..":__init()")
         
         ------------------
         -- Error catching
-        vader_assert(type(parsed_table) == "table" or type(parsed_table) == "nil", "Tried to init a ScopeObject_2 with parsed_table type:"..type(parsed_table)..". Use a table or nil.")
+        vader_assert(type(parsed_table) == "table" or type(parsed_table) == "nil", "Tried to init a ScopeObject with parsed_table type:"..type(parsed_table)..". Use a table or nil.")
         -----------------
         
         -- Create the partials table
@@ -3231,17 +3234,42 @@ do
             --index will be SCP_XXX, this_partial will be the subtable
             for index, this_partial in pairs(parsed_table) do
                     --Get scope
-                    --Find SCT_ key
+                    --Find scopetags
                     local this_scope = nil
-                    for key, value in pairs(this_partial) do
-                        if string.sub(key, 1, 4) == "SCT_" then
-                        this_scope = key
+
+                    --Method: run through subkeys in this scope partial,
+                    --compare against vader.lex.scope_levels table
+                    --on a match, this is the key --TODO: could be more efficient, for sure.
+                    for scopetag_name in pairs(this_partial) do
+
+                        for level_index, level_table in pairs (vader.lex.scope_levels) do
+
+                            for scope_index, scope_table in pairs(level_table) do
+                                
+                                for scopetag_index, scopetag_table in pairs(scope_table) do
+
+                                    if scopetag_table == scopetag_name then
+                                        this_scope = scopetag_name
+                                        break
+                                    end
+
+                                end
+                                if this_scope then break end
+                            end
+                            if this_scope then break end
+                        end
+                        if this_scope then break end
                     end
+
                     vader_assert(this_scope, "Could not find a scopetag in parsed scope table.")
                     --Define range specs
                     local this_range = this_partial["RNG_DEF"]
-                    local this_start_value = this_range["BEG_VAL"]
-                    local this_end_value = this_range["END_VAL"]
+                    local this_start_value
+                    local this_end_value
+                    if this_range then
+                        this_start_value = this_range["BEG_VAL"] and this_range["BEG_VAL"]["EXP"]
+                        this_end_value = this_range["END_VAL"] and this_range["END_VAL"]["EXP"]
+                    end
                     
                     --Set skip_empty flag and other range extras if needed
                     local this_range_flags = this_partial["SCP_FLG"]
@@ -3274,16 +3302,8 @@ do
 
                     vader.logs.debug:entry("collected user partial:"..new_user_partial.name) --debug
 
-                end
             end
             
-
-            for _, partial in ipairs(user_partials) do
-                partial:dump()
-            end
-            ----> MO got here from ^there
-            --Build new ScopeObject_2 class to init a scope from parsed LPeg Table!
-
 
             --Select partials to use in scope
             local function select_partial(scope_name)
@@ -3330,11 +3350,6 @@ do
                     end
                 end
                 --vader.logs.debug:entry("searched level:"..level_name..". No more partials!") --debug
-            end
-
-            --debug
-            for _, partial in ipairs(self.scope) do
-                partial:dump()
             end
 
             --Compute full range from sparse partial definition
@@ -3446,19 +3461,22 @@ do
                 end
             end
 
+            --debug
+            --self:dump()
+
         else
             --no context_tree supplied.
             vader.logs.debug:entry("Some weird shit happ'nin, boss")
             return self, nil, processing_notes
         end
     end
-    function ScopeObject_2:dump()
+    function ScopeObject:dump()
         --[[
         Dump Scope info to debug log
         --]]
         local method_log = register_method_log(type(self)..":dump()")
 
-        vader.logs.debug:entry("ScopeObject_2 dump():")
+        vader.logs.debug:entry("ScopeObject dump():")
         vader.logs.debug:entry("--")
         vader.logs.debug:entry("PATTERN LEVEL - " .. (self.scope[1].name or "nil"))
         self.scope[1]:dump()
@@ -3479,7 +3497,7 @@ do
         self.scope[6]:dump()
         vader.logs.debug:entry("--")
     end
-    function ScopeObject_2:partial(level_index)
+    function ScopeObject:partial(level_index)
         --[[
         Returns a partial by level_index
         --]]
@@ -3487,7 +3505,7 @@ do
 
         return self.scope[level_index]
     end
-    function ScopeObject_2:get_object_pointed_at()
+    function ScopeObject:get_object_pointed_at()
         --[[
         Returns the CURRENT object that is pointed at in the scope.
         i.e. the object that has "lowest index",

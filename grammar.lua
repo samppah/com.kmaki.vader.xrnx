@@ -508,7 +508,7 @@ G.rangedef =
     	G.rangedef_unnested
 	+
 	--Nested 
-        Ct(
+        (
 	    P'(' *
 	    G.rangedef_unnested
 	    * P')'

@@ -1168,11 +1168,28 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
         --Build scope object for process
         --Explicit values (and some implicit) are built in LPeg parse
         --now build implicit values
-        --
-        --local target_scope = ScopeObject_2(TRG["SCP"])
+        
+        local target_scope = ScopeObject(TRG["SCP"])
+        local content_scope
+        local content_exp
+        if CNT then
+            if CNT["SCP"] then
+                content_scope = ScopeObject(CNT["SCP"])
+            elseif CNT["EXP"] then
+                content_exp = content_exp 
+            else
+                vader_error("Content part is not a scope or an expression. But how. ?")
+            end
+        end
 
 
     end
+
+    -- Parse is a success
+    parse_log:entry("success.") --debug
+
+    -- Get info stored
+    vader.logs.main:join_log(parse_log:compress())
 
     --Back
     return true
@@ -1228,13 +1245,5 @@ function dummylol()
     end
 
 
-    -- Parse is a success
-    parse_log:entry("success.") --debug
-
-    -- Get info stored
-    vader.logs.main:join_log(parse_log:compress())
-
-    -- Get back
-    return true
 
 end
