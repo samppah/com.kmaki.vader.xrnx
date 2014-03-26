@@ -199,21 +199,21 @@ vader.lex.solve_lookup_table = {
 
     --VALUE CURRENT
     ["<value current>"] = function(scope)
-        if scope == "pattern" then
+        if scope == "PAT" then
             return (vader.cursor and vader.cursor.pattern) or rs.selected_pattern_index
-        elseif scope == "sequence" then
+        elseif scope == "SEQ" then
             return (vader.cursor and vader.cursor.sequence) or rs.selected_sequence_index
         elseif scope == "section" then
             --TODO!!!
             --compatibility placeholder with current pattern return
             return (vader.cursor and vader.cursor.pattern) or rs.selected_pattern_index
-        elseif scope == "track" then
+        elseif scope == "TRK" then
             return (vader.cursor and vader.cursor.track) or rs.selected_track_index
-        elseif scope == "trackgroup" then
+        elseif scope == "GRP" then
             --TODO!!!
             --compatibility placeholder with current track return
             return (vader.cursor and vader.cursor.track) or rs.selected_track_index
-        elseif scope == "line" then
+        elseif scope == "LIN" then
             return (vader.cursor and vader.cursor.line) or rs.transport.edit_pos.line
         elseif scope == "column" then
             if rs.selected_note_column_index then
@@ -227,47 +227,47 @@ vader.lex.solve_lookup_table = {
         elseif scope == "effectcolumn" then
             return (vader.cursor and vader.cursor.effect_column) or rs.selected_effect_column_index
             --]]
-        elseif scope == "note_column" then
+        elseif scope == "NOC" then
             return (vader.cursor and vader.cursor.note_column) or rs.selected_note_column_index
-        elseif scope == "effect_column" then
+        elseif scope == "EFC" then
             return (vader.cursor and vader.cursor.effect_column) or rs.selected_effect_column_index
-        elseif scope == "note_value" then
+        elseif scope == "NVA" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").note_value
             end
-        elseif scope == "instrument_value" then
+        elseif scope == "INS" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").instrument_value
             end
-        elseif scope == "volume_value" then
+        elseif scope == "VOL" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").volume_value
             end
-        elseif scope == "panning_value" then
+        elseif scope == "PAN" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").panning_value
             end
-        elseif scope == "delay_value" then
+        elseif scope == "DEL" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").delay_value
             end
-        elseif scope == "effectnumber" then
+        elseif scope == "ENU" then
             if rs.selected_effect_column == nil then
                 return 0
             else
                 return get_selected("effect_column").number_value
             end
-        elseif scope == "effectamount" then
+        elseif scope == "EVA" then
             if rs.selected_effect_column == nil then
                 return 0
             else
@@ -278,21 +278,21 @@ vader.lex.solve_lookup_table = {
 
     --VALUE MIN
     ["<symbol min>"] = function(scope)
-        if scope == "pattern" then
+        if scope == "PAT" then
             return 1
-        elseif scope == "sequence" then
+        elseif scope == "SEQ" then
             return 1
         elseif scope == "section" then
             --TODO!!
             --compatibility placeholder from sequence
             return 1
-        elseif scope == "track" then
+        elseif scope == "TRK" then
             return 1
-        elseif scope == "trackgroup" then
+        elseif scope == "GRP" then
             --TODO!!
             --compatibility placeholder from track
             return 1
-        elseif scope == "line" then
+        elseif scope == "LIN" then
             return 1
         elseif scope == "column" then
             if rs.selected_note_column_index then
@@ -313,7 +313,7 @@ vader.lex.solve_lookup_table = {
         elseif scope == "effectcolumn" then
             return 1
             --]]
-        elseif scope == "note_column" then
+        elseif scope == "NOC" then
             local is_seq = (rs.selected_track_index < rs.sequencer_track_count)
             local notecol_min
             if is_seq then
@@ -322,22 +322,22 @@ vader.lex.solve_lookup_table = {
                 notecol_min = 0
             end
             return notecol_min
-        elseif scope == "effect_column" then
+        elseif scope == "EFC" then
             return 1
-        elseif scope == "note_value" then
+        elseif scope == "NVA" then
             return 0 
-        elseif scope == "instrument_value" then
+        elseif scope == "INS" then
             return #rs.instruments
-        elseif scope == "volume_value" then
+        elseif scope == "VOL" then
             return 0
-        elseif scope == "panning_value" then
+        elseif scope == "PAN" then
             return 0
-        elseif scope == "delay_value" then
+        elseif scope == "DEL" then
             return 0
-        elseif scope == "effectnumber" then
+        elseif scope == "ENU" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
-        elseif scope == "effectamount" then
+        elseif scope == "EVA" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
         end
@@ -345,21 +345,21 @@ vader.lex.solve_lookup_table = {
 
     --VALUE MAX
     ["<symbol max>"] = function(scope)
-        if scope == "pattern" then
+        if scope == "PAT" then
             return #rs.patterns
-        elseif scope == "sequence" then
+        elseif scope == "SEQ" then
             return #rs.sequencer.pattern_sequence
         elseif scope == "section" then
             --TODO!!
             --compatibility placeholder from sequence
             return #rs.sequencer.pattern_sequence
-        elseif scope == "track" then
+        elseif scope == "TRK" then
             return rs.sequencer_track_count + rs.send_track_count + 1 --the 1 is master
-        elseif scope == "trackgroup" then
+        elseif scope == "GRP" then
             --TODO!!
             --compatibility placeholder from track
             return rs.sequencer_track_count + rs.send_track_count + 1 --the 1 is master
-        elseif scope == "line" then
+        elseif scope == "LIN" then
             return rs.selected_pattern.number_of_lines
         elseif scope == "column" then
             --TODO:this does not always work now! GROUP TRACKS!
@@ -379,28 +379,28 @@ vader.lex.solve_lookup_table = {
             local seq_track=rs:track(1)
             return seq_track.visible_effect_columns --TODO:max no of effect columns
             --]]
-        elseif scope == "note_column" then
+        elseif scope == "NOC" then
             --TODO:this does not always work now! GROUP TRACKS!
             local seq_track=rs:track(1)
             return seq_track.visible_note_columns --TODO:max no of notecolumns
-        elseif scope == "effect_column" then
+        elseif scope == "EFC" then
             --TODO:this does not always work now! GROUP TRACKS!
             local seq_track=rs:track(1)
             return seq_track.visible_effect_columns --TODO:max no of effect columns
-        elseif scope == "note_value" then
+        elseif scope == "NVA" then
             return 119 
-        elseif scope == "instrument_value" then
+        elseif scope == "INS" then
             return #rs.instruments
-        elseif scope == "volume_value" then
+        elseif scope == "VOL" then
             return 127 
-        elseif scope == "panning_value" then
+        elseif scope == "PAN" then
             return 127
-        elseif scope == "delay_value" then
+        elseif scope == "DEL" then
             return 255
-        elseif scope == "effectnumber" then
+        elseif scope == "ENU" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
-        elseif scope == "effectamount" then
+        elseif scope == "EVA" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
         end
@@ -408,13 +408,13 @@ vader.lex.solve_lookup_table = {
 
     --VALUE EMPTY
     ["<symbol empty>"] = function(scope)
-        if scope == "pattern" then
+        if scope == "PAT" then
             return "CLEAR_OBJECT"
-        elseif scope == "sequence" then
+        elseif scope == "SEQ" then
             return "CLEAR_OBJECT"
-        elseif scope == "track" then
+        elseif scope == "TRK" then
             return "CLEAR_OBJECT"
-        elseif scope == "line" then
+        elseif scope == "LIN" then
             return "CLEAR_OBJECT"
         elseif scope == "column" then
             --TODO
@@ -442,31 +442,31 @@ vader.lex.solve_lookup_table = {
             --return seq_track.max_effect_columns --TODO:max no of effect columns
             return "CLEAR_OBJECT"
             --]]
-        elseif scope == "note_column" then
+        elseif scope == "NOC" then
             --TODO
             --TODO:this does not always work now! GROUP TRACKS!
             --local seq_track=rs:track(1)
             --return seq_track.max_note_columns --TODO:max no of notecolumns
             return "CLEAR_OBJECT"
-        elseif scope == "effect_column" then
+        elseif scope == "EFC" then
             --TODO:this does not always work now! GROUP TRACKS!
             --TODO
             --local seq_track=rs:track(1)
             --return seq_track.max_effect_columns --TODO:max no of effect columns
             return "CLEAR_OBJECT"
-        elseif scope == "note_value" then
+        elseif scope == "NVA" then
             return 121
-        elseif scope == "instrument_value" then
+        elseif scope == "INS" then
             return 255
-        elseif scope == "volume_value" then
+        elseif scope == "VOL" then
             return 255
-        elseif scope == "panning_value" then
+        elseif scope == "PAN" then
             return 255
-        elseif scope == "delay_value" then
+        elseif scope == "DEL" then
             return 0
-        elseif scope == "effectnumber" then
+        elseif scope == "ENU" then
             return 0
-        elseif scope == "effectamount" then
+        elseif scope == "EVA" then
             return 0
         end
     end,
@@ -964,7 +964,6 @@ vader.lex.tokens = {
     ["<flg noselect upper 2>"]                ={1,  8,  {" %-NOSEL"},},
 }
 
-
 function get_scopetag_level(scope_string)
     --This function returns the level of the scopetag or false
     vader_assert(type(scope_string) == "string", "Tried to call get_scopetag_level() with a scope_string type:"..type(scope_string)..". Use a string.")
@@ -1049,109 +1048,3 @@ vader.lex.directives = {
         return remove_user_macro(directive:arguments())
     end
 }
---[[
-vader.lex.grammar = {
-    --- script definition
-    ["<script>"] =            { "<msgdef>", "<addt_msg+>", },
-
-    --- message definition
-    ["<msgdef>"] =            { "<cmddef>", "<msg_mcrdef>", "<msg_flgdef>", },
-
-    ["<addt_msg>"] =          { "<prfx_msgdef>", "<msgdef>"  , },
-    ["<prfx_msgdef>"] =       { "<prfx_msgdef_char>", },
-
-    --- command definition
-    ["<cmddef>"] =            { "<trgdef>", "<cntdef>", "<cmd_mcrdef>", "<cmd_flgdef>", },
-
-    --- target definition
-    ["<trgdef>"] =            { "<trg>", "<trg_flgdef>", "<trg_mcrdef>", },
-
-    --- content definition
-    ["<cntdef>"] =            { "<prfx_cnt>", "<cnt>", "<cnt_flgdef>", "<cnt_mcrdef>", },
-
-    --- target
-    ["<trg>"] =             { "<scp_partial+>", },
-
-    --- content
-    ["<cnt>"] =               { "<scp_partial+>", },
-
-    --- scope partial
-    ["<scope_partial>"] =     { "<scopetag>", "<rngdef>", "<flag+>", },
-
-    --- range definition
-    ["<rngdef>"] =            { "<rngdef_complete>", "<rngdef_start|>", "<rngdef_end>" , },
-    ["<rngdef_complete>"] =   { "<start_value>", "<range_spec_string>", "<end_value>", },
-    ["<rngdef_start>"] =      { "<start_value>", "<range_spec_string>", },
-    ["<rngdef_end>"] =        { "<range_spec_string>", "<end_value>", },
-    ["<range_spec_string>"] = { "..", },
-    ["<start_value>"] =       { "<digit>", "<hex_digit>", },
-    ["<end_value>"] =         { "<digit>", "<hex_digit>", },
-
-    --- flag definitions
-    ["<msg_flgdef>"] =        { "<prfx_msg_flgdef>", "<flgdef>", },
-    ["<flgdef>"] =            { "<prfx_flag>", "<flag+>", },
-    ["<prfx_flag>"] =         { "<whitespace+>", "<prfx_flag_char>" , },
-    ["<msg_flgdef>"] =        { "<prfx_flag>", "<prfx_flag_char>", "<flagdef>", },
-    ["<cmd_flgdef>"] =        { "<prfx_flag>", "<flagdef>", },
-    ["<trg_flgdef>"] =        { "<flagdef>", },
-    ["<cnt_flgdef>"] =        { "<flagdef>", },
-    ["<flag>"] =              { "<flag_invert|>", "<flag_if_empty|>", },
-
-    --- macro definitions
-    ["<mcrdef>"] =            { "<prfx_mcr>", "<mcr>", "<mcr_name>", },
-    ["<prfx_mcr>"] =        { "<whitespace+>", "<prfx_mcr_char>" , },
-    ["<msg_mcrdef>"] =        { "<prfx_mcr>", "<prfx_mcr_char>", "<mcodef>", },
-    ["<cmd_mcrdef>"] =        { "<prfx_mcr>", "<mcrdef>", },
-    ["<trg_mcrdef>"] =        { "<mcrdef>", },
-    ["<cnt_mcrdef>"] =        { "<mcrdef>", },
-}
---]]
-
---[[
-vader.lex.precedence = {
-    ["<binary_op_mul>"] = {2, 3,
-        {
-        {"digit|digit_hex", "binary_op_mul", "digit|digit_hex"},
-        "+3"
-        },
-    ["<binary_op_div>"],
-    ["<binary_op_sum>"],
-    ["<binary_op_sub>"],
-}
---]]
-
-
---[[
-vader.lex.directives = {
-    -- The internal directives that guide the execution of vader
-    
-
-    ["PARSE"],
-    -- Send a message to parse
-
-
-    ["MACRO_ADD"],
-    -- Add a user macro
-    
-
-    ["MACRO_DELETE"],
-    -- Delete a user macro
-    
-
-    ["KEYBIND_ADD"],
-    -- Add a keybinding
-
-
-    ["KEYBIND_DELETE"],
-    -- Add a keybinding
-    
-
-    ["DISPLAY"],
-    -- Display a message
-
-
-    ["EXIT"],
-    -- Close GUI
-}
-
---]]

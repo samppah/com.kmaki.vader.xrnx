@@ -264,6 +264,7 @@ require "gui"
 require "macro"
 require "lexicon"
 require "parser"
+require "grammar"
 require "process"
 
 ----------------------------------------------------
@@ -641,6 +642,7 @@ local function boot_submodules(global_root_node)
     boot_output(global_root_node)
     boot_classes(global_root_node)
     boot_parser(global_root_node)
+    boot_grammar(global_root_node)
     boot_lexicon(global_root_node)
     boot_process(global_root_node)
     boot_macro(global_root_node)
@@ -680,7 +682,7 @@ if vader.DEBUG_MODE == true then
 else
     dbgoutput = vader.displays.no_display
 end
-vader.logs.debug = ALog("Debug Log", dbgoutput, 0)
+vader.logs.debug = ALog("Debug Log", dbgoutput, 100)
 
 -- Active_task log
 vader.logs.active_task = ALog("active_task", vader.displays.no_display, 3)

@@ -1,4 +1,12 @@
 --vader grammar lulpeg
+
+local vader = get_tool_root_node()
+
+function boot_grammar(main_vader)
+    vader = main_vader
+end
+
+
 local lulpeg = require("LuLpeg/lulpeg")
 
 local match = lulpeg.match
@@ -24,6 +32,24 @@ local counter_script = 0
 local counter_msg = 0
 local counter_msg_part = 0
 local counter_scope_part = 0
+
+--Stuff for context based internal values
+local context = {}
+
+local function set_context(level_name, item_name)
+    --[[
+    Returns a dummy LPeg pattern that doesn't interfere with
+    capturing process, but sets local variable context
+    --]]
+    return P(
+            Cmt(P(0), function(subject, pos)
+                --vader.logs.debug:entry("Set context level["..level_name.."] item["..item_name.."]")
+                context[level_name] = item_name
+                return pos
+            end)
+            )
+end
+
 
 function G:reset_parse_counters()
     counter_script = 0
@@ -85,87 +111,88 @@ G.ws = S(" \n\t")^0 --whitespace
 G.scopetag = {
     pattern_level = {
         pattern = {
-            single = Cg(Ct(Cg((P'p'), "_string")), "SCT_PAT_SINGLE"),
-            double = Cg(Ct(Cg((P'pp'), "_string")), "SCT_PAT_DOUBLE"),
-            upper = Cg(Ct(Cg((P'P'), "_string")), "SCT_PAT_UPPER")
+            single = Cg(Ct(Cg((P'p'), "_string")), "SCT_PAT_SINGLE") * set_context("scopetag", "PAT"),
+            double = Cg(Ct(Cg((P'pp'), "_string")), "SCT_PAT_DOUBLE") * set_context("scopetag", "PAT"),
+            upper = Cg(Ct(Cg((P'P'), "_string")), "SCT_PAT_UPPER") * set_context("scopetag", "PAT") 
         },
+
         sequence = {
-            single = Cg(Ct(Cg((P'q'), "_string")), "SCT_SEQ_SINGLE"),
-            double = Cg(Ct(Cg((P'qq'), "_string")), "SCT_SEQ_DOUBLE"),
-            upper = Cg(Ct(Cg((P'Q'), "_string")), "SCT_SEQ_UPPER")
+            single = Cg(Ct(Cg((P'q'), "_string")), "SCT_SEQ_SINGLE") * set_context("scopetag", "SEQ"),
+            double = Cg(Ct(Cg((P'qq'), "_string")), "SCT_SEQ_DOUBLE") * set_context("scopetag", "SEQ"),
+            upper = Cg(Ct(Cg((P'Q'), "_string")), "SCT_SEQ_UPPER") * set_context("scopetag", "SEQ")
         },
         section = {
-            single = Cg(Ct(Cg((P'c'), "_string")), "SCT_SEC_SINGLE"),
-            double = Cg(Ct(Cg((P'cc'), "_string")), "SCT_SEC_DOUBLE"),
-            upper = Cg(Ct(Cg((P'C'), "_string")), "SCT_SEC_UPPER")
+            single = Cg(Ct(Cg((P'c'), "_string")), "SCT_SEC_SINGLE") * set_context("scopetag", "SEC"),
+            double = Cg(Ct(Cg((P'cc'), "_string")), "SCT_SEC_DOUBLE") * set_context("scopetag", "SEC"),
+            upper = Cg(Ct(Cg((P'C'), "_string")), "SCT_SEC_UPPER") * set_context("scopetag", "SEC")
         },
     },
     track_level = {
         track = {
-            single = Cg(Ct(Cg((P't'), "_string")), "SCT_TRK_SINGLE"),
-            double = Cg(Ct(Cg((P'tt'), "_string")), "SCT_TRK_DOUBLE"),
-            upper = Cg(Ct(Cg((P'T'), "_string")), "SCT_TRK_UPPER")
+            single = Cg(Ct(Cg((P't'), "_string")), "SCT_TRK_SINGLE") * set_context("scopetag", "TRK"),
+            double = Cg(Ct(Cg((P'tt'), "_string")), "SCT_TRK_DOUBLE") * set_context("scopetag", "TRK"),
+            upper = Cg(Ct(Cg((P'T'), "_string")), "SCT_TRK_UPPER") * set_context("scopetag", "TRK")
         },
         group = {
-            single = Cg(Ct(Cg((P'g'), "_string")), "SCT_GRP_SINGLE"),
-            double = Cg(Ct(Cg((P'gg'), "_string")), "SCT_GRP_DOUBLE"),
-            upper = Cg(Ct(Cg((P'G'), "_string")), "SCT_GRP_UPPER")
+            single = Cg(Ct(Cg((P'g'), "_string")), "SCT_GRP_SINGLE") * set_context("scopetag", "GRP"),
+            double = Cg(Ct(Cg((P'gg'), "_string")), "SCT_GRP_DOUBLE") * set_context("scopetag", "GRP"),
+            upper = Cg(Ct(Cg((P'G'), "_string")), "SCT_GRP_UPPER") * set_context("scopetag", "GRP")
         },
     },
     line_level = {
         line = {
-            single = Cg(Ct(Cg((P'l'), "_string")), "SCT_LIN_SINGLE"),
-            double = Cg(Ct(Cg((P'll'), "_string")), "SCT_LIN_DOUBLE"),
-            upper = Cg(Ct(Cg((P'L'), "_string")), "SCT_LIN_UPPER")
+            single = Cg(Ct(Cg((P'l'), "_string")), "SCT_LIN_SINGLE") * set_context("scopetag", "LIN"),
+            double = Cg(Ct(Cg((P'll'), "_string")), "SCT_LIN_DOUBLE") * set_context("scopetag", "LIN"),
+            upper = Cg(Ct(Cg((P'L'), "_string")), "SCT_LIN_UPPER") * set_context("scopetag", "LIN")
         },
     },
     column_level = {
         note_column = {
-            single = Cg(Ct(Cg((P'n'), "_string")), "SCT_NOC_SINGLE"),
-            double = Cg(Ct(Cg((P'nn'), "_string")), "SCT_NOC_DOUBLE"),
-            upper = Cg(Ct(Cg((P'N'), "_string")), "SCT_NOC_UPPER")
+            single = Cg(Ct(Cg((P'n'), "_string")), "SCT_NOC_SINGLE") * set_context("scopetag", "NOC"),
+            double = Cg(Ct(Cg((P'nn'), "_string")), "SCT_NOC_DOUBLE") * set_context("scopetag", "NOC"),
+            upper = Cg(Ct(Cg((P'N'), "_string")), "SCT_NOC_UPPER") * set_context("scopetag", "NOC")
         },
         effect_column = {
-            single = Cg(Ct(Cg((P'e'), "_string")), "SCT_EFC_SINGLE"),
-            double = Cg(Ct(Cg((P'ee'), "_string")), "SCT_EFC_DOUBLE"),
-            upper = Cg(Ct(Cg((P'E'), "_string")), "SCT_EFC_UPPER")
+            single = Cg(Ct(Cg((P'e'), "_string")), "SCT_EFC_SINGLE") * set_context("scopetag", "EFC"),
+            double = Cg(Ct(Cg((P'ee'), "_string")), "SCT_EFC_DOUBLE") * set_context("scopetag", "EFC"),
+            upper = Cg(Ct(Cg((P'E'), "_string")), "SCT_EFC_UPPER") * set_context("scopetag", "EFC")
         },
     },
     subcolumn_level = {
         note_value = {
-            single = Cg(Ct(Cg((P'n'), "_string")), "SCT_NVA_SINGLE"),
-            double = Cg(Ct(Cg((P'nn'), "_string")), "SCT_NVA_DOUBLE"),
-            upper = Cg(Ct(Cg((P'N'), "_string")), "SCT_NVA_UPPER")
+            single = Cg(Ct(Cg((P'n'), "_string")), "SCT_NVA_SINGLE") * set_context("scopetag", "NVA"),
+            double = Cg(Ct(Cg((P'nn'), "_string")), "SCT_NVA_DOUBLE") * set_context("scopetag", "NVA"),
+            upper = Cg(Ct(Cg((P'N'), "_string")), "SCT_NVA_UPPER") * set_context("scopetag", "NVA")
         },
         instrument_value = {
-            single = Cg(Ct(Cg((P'i'), "_string")), "SCT_INS_SINGLE"),
-            double = Cg(Ct(Cg((P'ii'), "_string")), "SCT_INS_DOUBLE"),
-            upper = Cg(Ct(Cg((P'I'), "_string")), "SCT_INS_UPPER")
+            single = Cg(Ct(Cg((P'i'), "_string")), "SCT_INS_SINGLE") * set_context("scopetag", "INS"),
+            double = Cg(Ct(Cg((P'ii'), "_string")), "SCT_INS_DOUBLE") * set_context("scopetag", "INS"),
+            upper = Cg(Ct(Cg((P'I'), "_string")), "SCT_INS_UPPER") * set_context("scopetag", "INS")
         },
         volume_value = {
-            single = Cg(Ct(Cg((P'v'), "_string")), "SCT_VOL_SINGLE"),
-            double = Cg(Ct(Cg((P'vv'), "_string")), "SCT_VOL_DOUBLE"),
-            upper = Cg(Ct(Cg((P'V'), "_string")), "SCT_VOL_UPPER")
+            single = Cg(Ct(Cg((P'v'), "_string")), "SCT_VOL_SINGLE") * set_context("scopetag", "VOL"),
+            double = Cg(Ct(Cg((P'vv'), "_string")), "SCT_VOL_DOUBLE") * set_context("scopetag", "VOL"),
+            upper = Cg(Ct(Cg((P'V'), "_string")), "SCT_VOL_UPPER") * set_context("scopetag", "VOL")
         },
         pan_value = {
-            single = Cg(Ct(Cg((P'p'), "_string")), "SCT_PAN_SINGLE"),
-            double = Cg(Ct(Cg((P'pp'), "_string")), "SCT_PAN_DOUBLE"),
-            upper = Cg(Ct(Cg((P'P'), "_string")), "SCT_PAN_UPPER")
+            single = Cg(Ct(Cg((P'p'), "_string")), "SCT_PAN_SINGLE") * set_context("scopetag", "PAN"),
+            double = Cg(Ct(Cg((P'pp'), "_string")), "SCT_PAN_DOUBLE") * set_context("scopetag", "PAN"),
+            upper = Cg(Ct(Cg((P'P'), "_string")), "SCT_PAN_UPPER") * set_context("scopetag", "PAN")
         },
         delay_value = {
-            single = Cg(Ct(Cg((P'd'), "_string")), "SCT_DEL_SINGLE"),
-            double = Cg(Ct(Cg((P'dd'), "_string")), "SCT_DEL_DOUBLE"),
-            upper = Cg(Ct(Cg((P'D'), "_string")), "SCT_DEL_UPPER")
+            single = Cg(Ct(Cg((P'd'), "_string")), "SCT_DEL_SINGLE") * set_context("scopetag", "DEL"),
+            double = Cg(Ct(Cg((P'dd'), "_string")), "SCT_DEL_DOUBLE") * set_context("scopetag", "DEL"),
+            upper = Cg(Ct(Cg((P'D'), "_string")), "SCT_DEL_UPPER") * set_context("scopetag", "DEL")
         },
         effect_number = {
-            single = Cg(Ct(Cg((P'f'), "_string")), "SCT_ENU_SINGLE"),
-            double = Cg(Ct(Cg((P'ff'), "_string")), "SCT_ENU_DOUBLE"),
-            upper = Cg(Ct(Cg((P'F'), "_string")), "SCT_ENU_UPPER")
+            single = Cg(Ct(Cg((P'f'), "_string")), "SCT_ENU_SINGLE") * set_context("scopetag", "ENU"),
+            double = Cg(Ct(Cg((P'ff'), "_string")), "SCT_ENU_DOUBLE") * set_context("scopetag", "ENU"),
+            upper = Cg(Ct(Cg((P'F'), "_string")), "SCT_ENU_UPPER") * set_context("scopetag", "ENU")
         },
         effect_value = {
-            single = Cg(Ct(Cg((P'x'), "_string")), "SCT_EVA_SINGLE"),
-            double = Cg(Ct(Cg((P'xx'), "_string")), "SCT_EVA_DOUBLE"),
-            upper = Cg(Ct(Cg((P'X'), "_string")), "SCT_EVA_UPPER")
+            single = Cg(Ct(Cg((P'x'), "_string")), "SCT_EVA_SINGLE") * set_context("scopetag", "EVA"),
+            double = Cg(Ct(Cg((P'xx'), "_string")), "SCT_EVA_DOUBLE") * set_context("scopetag", "EVA"),
+            upper = Cg(Ct(Cg((P'X'), "_string")), "SCT_EVA_UPPER") * set_context("scopetag", "EVA")
         },
     },
 } 
@@ -210,32 +237,26 @@ end
 
 G.symbol_current = get_single_scopepartials()
 
-local function solve(val1, val2, val3)
-
-    print("solving....")
-    print("val1", val1)
-    print("val2", val2)
-    print("val3", val3)
+local function solve(internal_value)
 
 
+    local solve_function = vader.lex.solve_lookup_table[internal_value]
+    vader_assert(solve_function, "Can't solve: "..internal_value..", no function in vader.lex.solve_lookup_table.")
 
-    return true
+    local scope = context["scopetag"]
+    vader_assert(scope, "Can't solve: "..internal_value..", no scope for context set.")
+
+    vader.logs.debug:entry("solve(): "..internal_value.." / "..scope)
+    return solve_function(scope)
 end
 
-G.internal = C(
-    Cmt(
-        Cc("<value current>") * G.symbol_current, solve
-        )
+G.internal = 
+        Cc("<value current>") * G.symbol_current / solve
     +
-    Cmt(
-        Cc("<symbol min>") * G.symbol_min, solve
-        )
+        Cc("<symbol min>") * G.symbol_min / solve
     +
-    Cmt(
-        Cc("<symbol max>") * G.symbol_max, solve
-        )
+        Cc("<symbol max>") * G.symbol_max /solve
 
-)
 
 local function note_convert(note)
     --converts a note string to note value and vice versa
@@ -348,7 +369,7 @@ end
 
 G.notevalue = P'0n' * C(S'AaBbCcDdEeFfGg' * S'#-' * G.digit)/note_convert
 
-G.value = C(G.hex) + G.notevalue + C(G.float) + C(G.internal) * G.ws
+G.value = C(G.hex) + G.notevalue + C(G.float) + G.internal * G.ws
 
 ------From LPeg examples
 local Number = G.value
@@ -450,7 +471,7 @@ G.rangedef_unnested =
 			Cg(
 			    (G.rng_sep * G.expression)
 			    +
-			    (G.rng_sep * Cc("max_value"))
+			    (G.rng_sep * Cc("<value current>"))
 
 			, "END_VAL")
 
@@ -461,7 +482,7 @@ G.rangedef_unnested =
 		(
 		
 		Cg(
-                    (G.rng_sep * Cc("current_value"))
+                    (G.rng_sep * Cc("<value current>"))
                 , "BEG_VAL")
 		*
 		Cg(
@@ -500,12 +521,7 @@ G.rangedef =
 function G:get_scopepartial(scopetag_name, level, tag)
 
     local p = 
---[[
-        ( Cmt(((scopetag_name.double * (G.scopeflags)^-1)) , function(val, val2, val3, val4)
-            print("**************scpt double found "..level.."/"..tag)
-            return true, val
-        end))
-        --]]
+
         ( (scopetag_name.double * (G.scopeflags)^-1) * Cmt( Cc(""), function(val, val2, val3, val4)
             --print("**************scpt double found "..level.."/"..tag)
             return true
@@ -604,6 +620,8 @@ G.scope =
 --G.content =     Cg( (G.expression) + (G.scope)^-1, error_"Invalid content." "CNT" ) --or expression
 --
 G.target =      (
+                    set_context("msg_part", "TRG")
+                    *
                     Cg( (G.scope)
                         --* ((#G.cnt_sep + #G.msg_sep) - 1)
                     , "TRG" )
@@ -614,9 +632,11 @@ G.target =      (
                 )
                 --+ Err("invalid target")
 G.content =     (
+                    set_context("msg_part", "CNT")
+                    *
                     Cg( 
                         (G.expression)
-                        + ((G.scope)^-1)
+                        + (G.scope)
                         --* (#G.msg_sep - 1)
                     , "CNT" )
                 * Cmt(Cc("__explicit"), function()
