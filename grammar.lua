@@ -396,6 +396,7 @@ end
 
 -- Grammar
 
+--[[
 G.binary_operation = P{
     "BinOp",
 
@@ -406,6 +407,7 @@ G.binary_operation = P{
     Factor = G.value / tonumber_ + G.OpenPar * V"BinOp" * G.ClosePar;
 
 }
+--]]
 
 -------End snip
 
@@ -422,11 +424,13 @@ function fn_eval(...)
     local argument_table = arg[2]
     if fn_id == "?" then 
             if argument_table[2] then
+                --2 arguments, random number from arg1 to arg2
                 local low_bound = math.min(argument_table[1], argument_table[2])
                 local high_bound = math.max(argument_table[1], argument_table[2])
                 local diff = high_bound - low_bound
                 return math.random(diff) + low_bound
             elseif argument_table[1] then
+                --Just 1 argument, random number from 0 to arg
                 return math.random(argument_table[1])
             else
                 not_implemented("Random function with no arguments")
@@ -440,16 +444,29 @@ end
 G.expression = 
     Ct(
         Cg(
-		P{
-			"Exp",
+            P{
 
-			Exp = G.binary_operation + G.value / tonumber_ + V"Fn";
+                "Exp",
 
-			Fn = Cf(G.fn_id * P('(') * V"Fn_arglist" * P(')'), fn_eval);
+                Exp = V"BinOp" + G.value / tonumber_ + V"Fn";
 
-			Fn_arglist = Ct(V"Exp" * (P(',') * V"Exp")^0);
-			
-    		}
+
+
+                BinOp = Cf(V"Term" * Cg(G.TermOp * V"Term")^0, binop_eval);
+
+                Term = Cf(V"Factor" * Cg(G.FactorOp * V"Factor")^0, binop_eval);
+
+                Factor = (G.value / tonumber_ + V"Fn") + G.OpenPar * V"BinOp" * G.ClosePar;
+
+
+
+                Fn = Cf(G.fn_id * P('(') * V"Fn_arglist" * P(')'), fn_eval);
+
+                Fn_arglist = Ct(V"Exp" * (P(',') * V"Exp")^0);
+
+
+
+            }
         , "EXP")
     )
 
