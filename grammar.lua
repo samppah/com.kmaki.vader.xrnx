@@ -350,7 +350,6 @@ G.notevalue = P'0n' * C(S'AaBbCcDdEeFfGg' * S'#-' * G.digit)/note_convert
 
 G.value = C(G.hex) + G.notevalue + C(G.float) + C(G.internal) * G.ws
 
-
 ------From LPeg examples
 local Number = G.value
 G.TermOp = C(S("+-")) * G.ws
@@ -377,27 +376,52 @@ end
 -- Grammar
 
 G.binary_operation = P{
-    "Exp",
+    "BinOp",
 
-    Exp = Cf(V"Term" * Cg(G.TermOp * V"Term")^0, binop_eval);
+    BinOp = Cf(V"Term" * Cg(G.TermOp * V"Term")^0, binop_eval);
 
     Term = Cf(V"Factor" * Cg(G.FactorOp * V"Factor")^0, binop_eval);
 
-    Factor = G.value / tonumber_ + G.OpenPar * V"Exp" * G.ClosePar;
+    Factor = G.value / tonumber_ + G.OpenPar * V"BinOp" * G.ClosePar;
 
 }
 
 -------End snip
 
+--Function identifiers --TODO: needs a grammar / referencing to G.expression, which can be a function
+G.fn_id = C('?') --random function
+	+ C('SIN') --sine function
+	+ C('COS') --cosine function
+	+ C('SQR') --square root
 
-G.expression =
+function fn_eval(...)
+    --gets passed fn_id, argument list
+    rprint(arg)
+    local fn_id = arg[1]
+    local argument_table = arg[2]
+    if fn_id == "?" then 
+	    return math.random(arg[2][1])
+    end
+    return 0
+end
+
+
+--Expression grammar.
+G.expression = 
     Ct(
         Cg(
-            G.binary_operation
-            + G.value / tonumber_
+		P{
+			"Exp",
+
+			Exp = G.binary_operation + G.value / tonumber_ + V"Fn";
+
+			Fn = Cf(G.fn_id * P('(') * V"Fn_arglist" * P(')'), fn_eval);
+
+			Fn_arglist = Ct(V"Exp" * (P(',') * V"Exp")^0);
+			
+    		}
         , "EXP")
     )
-
 
 --Root level separators
 G.msg_sep = P';'
