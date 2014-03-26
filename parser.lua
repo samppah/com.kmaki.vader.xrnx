@@ -1150,7 +1150,7 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
         local GFL = msg_table["MSG"]["GFL"]
         local MCR = msg_table["MSG"]["MCR"]
 
-        -- What kind is it?
+        --Analyze: what message parts are included
         local has_TRG = not(not(TRG))
             and vader.logs.debug:entry("Found TRG.")
 
@@ -1165,14 +1165,12 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
             and vader.logs.debug:entry("Found MCR.")
             and not_implemented("Macro part")
 
-        if (not has_TRG) and (not has_CNT) then
-            --no processing
-            vader.logs.debug:entry("No processing parts in message.")
+        --Build scope object for process
+        
+        --Explicit values (and some implicit) are built in LPeg parse
+        --now build implicit values
+        
 
-            not_implemented("No processing parts in message.")
-        end
-
-        --Explicit values built, now build implicit values
 
     end
 
