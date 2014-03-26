@@ -218,7 +218,7 @@ G.symbol_random = C(P'?')
 
 --Get single scopetags for "current" solvables
 local function get_single_scopepartials()
-    --Returns a combined pattern to match any single scope partial
+    --Returns a combined pattern to match any "single" scope partial
     --print("getting single scopepartials")
     local single_scopepartials
     for level, tags in pairs(G.scopetag) do
@@ -239,7 +239,6 @@ G.symbol_current = get_single_scopepartials()
 
 local function solve(internal_value)
 
-
     local solve_function = vader.lex.solve_lookup_table[internal_value]
     vader_assert(solve_function, "Can't solve: "..internal_value..", no function in vader.lex.solve_lookup_table.")
 
@@ -248,6 +247,7 @@ local function solve(internal_value)
 
     vader.logs.debug:entry("solve(): "..internal_value.." / "..scope)
     return solve_function(scope)
+
 end
 
 G.internal = 
@@ -378,14 +378,16 @@ G.FactorOp = C(S("*/")) * G.ws
 G.OpenPar = "(" * G.ws
 G.ClosePar = ")" * G.ws
 
+-- Function identifiers
+G.fn_id = C('?') --random function
+	+ C('SIN') --sine function
+	+ C('COS') --cosine function
+	+ C('SQR') --square root
+        + C('RND') --random function
 
--- Auxiliary function
+
+-- Evaluation functions
 function binop_eval (v1, op, v2)
-    --[[
-    print("v1", v1)
-    print("v2", v2)
-    print("op", op)
-    --]]
   if (op == "+") then return v1 + v2
   elseif (op == "-") then return v1 - v2
   elseif (op == "*") then return v1 * v2
@@ -394,35 +396,14 @@ function binop_eval (v1, op, v2)
 end
 
 
--- Grammar
-
---[[
-G.binary_operation = P{
-    "BinOp",
-
-    BinOp = Cf(V"Term" * Cg(G.TermOp * V"Term")^0, binop_eval);
-
-    Term = Cf(V"Factor" * Cg(G.FactorOp * V"Factor")^0, binop_eval);
-
-    Factor = G.value / tonumber_ + G.OpenPar * V"BinOp" * G.ClosePar;
-
-}
---]]
-
--------End snip
-
---Function identifiers --TODO: needs a grammar / referencing to G.expression, which can be a function
-G.fn_id = C('?') --random function
-	+ C('SIN') --sine function
-	+ C('COS') --cosine function
-	+ C('SQR') --square root
 
 function fn_eval(...)
-    --gets passed fn_id, argument list
+    -- Gets passed fn_id, argument list
     rprint(arg)
     local fn_id = arg[1]
     local argument_table = arg[2]
-    if fn_id == "?" then 
+    -- Random function
+    if fn_id == "?" or fn_id == "RND" then 
             if argument_table[2] then
                 --2 arguments, random number from arg1 to arg2
                 local low_bound = math.min(argument_table[1], argument_table[2])
@@ -475,7 +456,6 @@ G.msg_sep = P';'
 G.cnt_sep = P':'
 G.glf_sep = P'--'
 G.mcr_sep = P'@'
-
 
 
 --Lower level separators
@@ -575,6 +555,7 @@ G.scopepartial = {
     column_level = {},
     subcolumn_level = {},
 }
+
 for level, tags in pairs(G.scopetag) do
     for tag, patterns in pairs(tags) do
         G.scopepartial[level][tag] = G:get_scopepartial(G.scopetag[level][tag], level, tag)
@@ -648,27 +629,32 @@ G.scope =
 G.target =      (
                     set_context("msg_part", "TRG")
                     *
+
                     Cg( (G.scope)
                         --* ((#G.cnt_sep + #G.msg_sep) - 1)
                     , "TRG" )
+
                     * Cmt(Cc("__explicit"), function() 
                         --print("****msgpartinc")
                         counter_msg_part = counter_msg_part + 1
                         return true end)
                 )
                 --+ Err("invalid target")
+                
 G.content =     (
                     set_context("msg_part", "CNT")
                     *
+
                     Cg( 
-                        (G.expression)
-                        + (G.scope)
+                        (G.scope)
+                        + (G.expression)
                         --* (#G.msg_sep - 1)
                     , "CNT" )
-                * Cmt(Cc("__explicit"), function()
-                    --print("****msgpartinc")
-                    counter_msg_part = counter_msg_part + 1
-                    return true end)
+
+                    * Cmt(Cc("__explicit"), function()
+                        --print("****msgpartinc")
+                        counter_msg_part = counter_msg_part + 1
+                        return true end)
                 )
                 --+ Err("invalid content")
 
@@ -719,10 +705,23 @@ G.script =
     Ct(
         Cg(
             Ct(
-                (G.msg_sep^-1 * G.message * (G.msg_sep * G.message)^0 * -1)
-            )
+                    (G.msg_sep)^-1
+
+                    * G.message
+
+                    * (G.msg_sep * (G.message)^-1 )^0
+                    
+                    * P(-1)
+                )
         , "SCRIPT")
     )
     + Err("invalid script")
+
+
+
+
+
+
+
 
 return G
