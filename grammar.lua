@@ -111,88 +111,88 @@ G.ws = S(" \n\t")^0 --whitespace
 G.scopetag = {
     pattern_level = {
         pattern = {
-            single = Cg(Ct(Cg((P'p'), "_string")), "SCT_PAT_SINGLE") * set_context("scopetag", "PAT"),
-            double = Cg(Ct(Cg((P'pp'), "_string")), "SCT_PAT_DOUBLE") * set_context("scopetag", "PAT"),
-            upper = Cg(Ct(Cg((P'P'), "_string")), "SCT_PAT_UPPER") * set_context("scopetag", "PAT") 
+            single = Cg(Ct(Cg((P'p'), "_string")), "pattern") * set_context("scopetag", "pattern"),
+            double = Cg(Ct(Cg((P'pp'), "_string")), "pattern") * set_context("scopetag", "pattern"),
+            upper = Cg(Ct(Cg((P'P'), "_string")), "pattern") * set_context("scopetag", "pattern") 
         },
 
         sequence = {
-            single = Cg(Ct(Cg((P'q'), "_string")), "SCT_SEQ_SINGLE") * set_context("scopetag", "SEQ"),
-            double = Cg(Ct(Cg((P'qq'), "_string")), "SCT_SEQ_DOUBLE") * set_context("scopetag", "SEQ"),
-            upper = Cg(Ct(Cg((P'Q'), "_string")), "SCT_SEQ_UPPER") * set_context("scopetag", "SEQ")
+            single = Cg(Ct(Cg((P'q'), "_string")), "sequence") * set_context("scopetag", "sequence"),
+            double = Cg(Ct(Cg((P'qq'), "_string")), "sequence") * set_context("scopetag", "sequence"),
+            upper = Cg(Ct(Cg((P'Q'), "_string")), "sequence") * set_context("scopetag", "sequence")
         },
         section = {
-            single = Cg(Ct(Cg((P'c'), "_string")), "SCT_SEC_SINGLE") * set_context("scopetag", "SEC"),
-            double = Cg(Ct(Cg((P'cc'), "_string")), "SCT_SEC_DOUBLE") * set_context("scopetag", "SEC"),
-            upper = Cg(Ct(Cg((P'C'), "_string")), "SCT_SEC_UPPER") * set_context("scopetag", "SEC")
+            single = Cg(Ct(Cg((P'c'), "_string")), "section") * set_context("scopetag", "section"),
+            double = Cg(Ct(Cg((P'cc'), "_string")), "section") * set_context("scopetag", "section"),
+            upper = Cg(Ct(Cg((P'C'), "_string")), "section") * set_context("scopetag", "section")
         },
     },
     track_level = {
         track = {
-            single = Cg(Ct(Cg((P't'), "_string")), "SCT_TRK_SINGLE") * set_context("scopetag", "TRK"),
-            double = Cg(Ct(Cg((P'tt'), "_string")), "SCT_TRK_DOUBLE") * set_context("scopetag", "TRK"),
-            upper = Cg(Ct(Cg((P'T'), "_string")), "SCT_TRK_UPPER") * set_context("scopetag", "TRK")
+            single = Cg(Ct(Cg((P't'), "_string")), "track") * set_context("scopetag", "track"),
+            double = Cg(Ct(Cg((P'tt'), "_string")), "track") * set_context("scopetag", "track"),
+            upper = Cg(Ct(Cg((P'T'), "_string")), "track") * set_context("scopetag", "track")
         },
         group = {
-            single = Cg(Ct(Cg((P'g'), "_string")), "SCT_GRP_SINGLE") * set_context("scopetag", "GRP"),
-            double = Cg(Ct(Cg((P'gg'), "_string")), "SCT_GRP_DOUBLE") * set_context("scopetag", "GRP"),
-            upper = Cg(Ct(Cg((P'G'), "_string")), "SCT_GRP_UPPER") * set_context("scopetag", "GRP")
+            single = Cg(Ct(Cg((P'g'), "_string")), "trackgroup") * set_context("scopetag", "trackgroup"),
+            double = Cg(Ct(Cg((P'gg'), "_string")), "trackgroup") * set_context("scopetag", "trackgroup"),
+            upper = Cg(Ct(Cg((P'G'), "_string")), "trackgroup") * set_context("scopetag", "trackgroup")
         },
     },
     line_level = {
         line = {
-            single = Cg(Ct(Cg((P'l'), "_string")), "SCT_LIN_SINGLE") * set_context("scopetag", "LIN"),
-            double = Cg(Ct(Cg((P'll'), "_string")), "SCT_LIN_DOUBLE") * set_context("scopetag", "LIN"),
-            upper = Cg(Ct(Cg((P'L'), "_string")), "SCT_LIN_UPPER") * set_context("scopetag", "LIN")
+            single = Cg(Ct(Cg((P'l'), "_string")), "line") * set_context("scopetag", "line"),
+            double = Cg(Ct(Cg((P'll'), "_string")), "line") * set_context("scopetag", "line"),
+            upper = Cg(Ct(Cg((P'L'), "_string")), "line") * set_context("scopetag", "line")
         },
     },
     column_level = {
         note_column = {
-            single = Cg(Ct(Cg((P'n'), "_string")), "SCT_NOC_SINGLE") * set_context("scopetag", "NOC"),
-            double = Cg(Ct(Cg((P'nn'), "_string")), "SCT_NOC_DOUBLE") * set_context("scopetag", "NOC"),
-            upper = Cg(Ct(Cg((P'N'), "_string")), "SCT_NOC_UPPER") * set_context("scopetag", "NOC")
+            single = Cg(Ct(Cg((P'n'), "_string")), "note_column") * set_context("scopetag", "note_column"),
+            double = Cg(Ct(Cg((P'nn'), "_string")), "note_column") * set_context("scopetag", "note_column"),
+            upper = Cg(Ct(Cg((P'N'), "_string")), "note_column") * set_context("scopetag", "note_column")
         },
         effect_column = {
-            single = Cg(Ct(Cg((P'e'), "_string")), "SCT_EFC_SINGLE") * set_context("scopetag", "EFC"),
-            double = Cg(Ct(Cg((P'ee'), "_string")), "SCT_EFC_DOUBLE") * set_context("scopetag", "EFC"),
-            upper = Cg(Ct(Cg((P'E'), "_string")), "SCT_EFC_UPPER") * set_context("scopetag", "EFC")
+            single = Cg(Ct(Cg((P'e'), "_string")), "effect_column") * set_context("scopetag", "effect_column"),
+            double = Cg(Ct(Cg((P'ee'), "_string")), "effect_column") * set_context("scopetag", "effect_column"),
+            upper = Cg(Ct(Cg((P'E'), "_string")), "effect_column") * set_context("scopetag", "effect_column")
         },
     },
     subcolumn_level = {
         note_value = {
-            single = Cg(Ct(Cg((P'n'), "_string")), "SCT_NVA_SINGLE") * set_context("scopetag", "NVA"),
-            double = Cg(Ct(Cg((P'nn'), "_string")), "SCT_NVA_DOUBLE") * set_context("scopetag", "NVA"),
-            upper = Cg(Ct(Cg((P'N'), "_string")), "SCT_NVA_UPPER") * set_context("scopetag", "NVA")
+            single = Cg(Ct(Cg((P'n'), "_string")), "note_value") * set_context("scopetag", "note_value"),
+            double = Cg(Ct(Cg((P'nn'), "_string")), "note_value") * set_context("scopetag", "note_value"),
+            upper = Cg(Ct(Cg((P'N'), "_string")), "note_value") * set_context("scopetag", "note_value")
         },
         instrument_value = {
-            single = Cg(Ct(Cg((P'i'), "_string")), "SCT_INS_SINGLE") * set_context("scopetag", "INS"),
-            double = Cg(Ct(Cg((P'ii'), "_string")), "SCT_INS_DOUBLE") * set_context("scopetag", "INS"),
-            upper = Cg(Ct(Cg((P'I'), "_string")), "SCT_INS_UPPER") * set_context("scopetag", "INS")
+            single = Cg(Ct(Cg((P'i'), "_string")), "instrument_value") * set_context("scopetag", "instrument_value"),
+            double = Cg(Ct(Cg((P'ii'), "_string")), "instrument_value") * set_context("scopetag", "instrument_value"),
+            upper = Cg(Ct(Cg((P'I'), "_string")), "instrument_value") * set_context("scopetag", "instrument_value")
         },
         volume_value = {
-            single = Cg(Ct(Cg((P'v'), "_string")), "SCT_VOL_SINGLE") * set_context("scopetag", "VOL"),
-            double = Cg(Ct(Cg((P'vv'), "_string")), "SCT_VOL_DOUBLE") * set_context("scopetag", "VOL"),
-            upper = Cg(Ct(Cg((P'V'), "_string")), "SCT_VOL_UPPER") * set_context("scopetag", "VOL")
+            single = Cg(Ct(Cg((P'v'), "_string")), "volume_value") * set_context("scopetag", "volume_value"),
+            double = Cg(Ct(Cg((P'vv'), "_string")), "volume_value") * set_context("scopetag", "volume_value"),
+            upper = Cg(Ct(Cg((P'V'), "_string")), "volume_value") * set_context("scopetag", "volume_value")
         },
         pan_value = {
-            single = Cg(Ct(Cg((P'p'), "_string")), "SCT_PAN_SINGLE") * set_context("scopetag", "PAN"),
-            double = Cg(Ct(Cg((P'pp'), "_string")), "SCT_PAN_DOUBLE") * set_context("scopetag", "PAN"),
-            upper = Cg(Ct(Cg((P'P'), "_string")), "SCT_PAN_UPPER") * set_context("scopetag", "PAN")
+            single = Cg(Ct(Cg((P'p'), "_string")), "panning_value") * set_context("scopetag", "panning_value"),
+            double = Cg(Ct(Cg((P'pp'), "_string")), "panning_value") * set_context("scopetag", "panning_value"),
+            upper = Cg(Ct(Cg((P'P'), "_string")), "panning_value") * set_context("scopetag", "panning_value")
         },
         delay_value = {
-            single = Cg(Ct(Cg((P'd'), "_string")), "SCT_DEL_SINGLE") * set_context("scopetag", "DEL"),
-            double = Cg(Ct(Cg((P'dd'), "_string")), "SCT_DEL_DOUBLE") * set_context("scopetag", "DEL"),
-            upper = Cg(Ct(Cg((P'D'), "_string")), "SCT_DEL_UPPER") * set_context("scopetag", "DEL")
+            single = Cg(Ct(Cg((P'd'), "_string")), "delay_value") * set_context("scopetag", "delay_value"),
+            double = Cg(Ct(Cg((P'dd'), "_string")), "delay_value") * set_context("scopetag", "delay_value"),
+            upper = Cg(Ct(Cg((P'D'), "_string")), "delay_value") * set_context("scopetag", "delay_value")
         },
         effect_number = {
-            single = Cg(Ct(Cg((P'f'), "_string")), "SCT_ENU_SINGLE") * set_context("scopetag", "ENU"),
-            double = Cg(Ct(Cg((P'ff'), "_string")), "SCT_ENU_DOUBLE") * set_context("scopetag", "ENU"),
-            upper = Cg(Ct(Cg((P'F'), "_string")), "SCT_ENU_UPPER") * set_context("scopetag", "ENU")
+            single = Cg(Ct(Cg((P'f'), "_string")), "effectnumber") * set_context("scopetag", "effectnumber"),
+            double = Cg(Ct(Cg((P'ff'), "_string")), "effectnumber") * set_context("scopetag", "effectnumber"),
+            upper = Cg(Ct(Cg((P'F'), "_string")), "effectnumber") * set_context("scopetag", "effectnumber")
         },
         effect_value = {
-            single = Cg(Ct(Cg((P'x'), "_string")), "SCT_EVA_SINGLE") * set_context("scopetag", "EVA"),
-            double = Cg(Ct(Cg((P'xx'), "_string")), "SCT_EVA_DOUBLE") * set_context("scopetag", "EVA"),
-            upper = Cg(Ct(Cg((P'X'), "_string")), "SCT_EVA_UPPER") * set_context("scopetag", "EVA")
+            single = Cg(Ct(Cg((P'x'), "_string")), "effectamount") * set_context("scopetag", "effectamount"),
+            double = Cg(Ct(Cg((P'xx'), "_string")), "effectamount") * set_context("scopetag", "effectamount"),
+            upper = Cg(Ct(Cg((P'X'), "_string")), "effectamount") * set_context("scopetag", "effectamount")
         },
     },
 } 

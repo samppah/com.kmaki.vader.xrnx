@@ -199,21 +199,21 @@ vader.lex.solve_lookup_table = {
 
     --VALUE CURRENT
     ["<value current>"] = function(scope)
-        if scope == "PAT" then
+        if scope == "pattern" then
             return (vader.cursor and vader.cursor.pattern) or rs.selected_pattern_index
-        elseif scope == "SEQ" then
+        elseif scope == "sequence" then
             return (vader.cursor and vader.cursor.sequence) or rs.selected_sequence_index
         elseif scope == "section" then
             --TODO!!!
             --compatibility placeholder with current pattern return
             return (vader.cursor and vader.cursor.pattern) or rs.selected_pattern_index
-        elseif scope == "TRK" then
+        elseif scope == "track" then
             return (vader.cursor and vader.cursor.track) or rs.selected_track_index
-        elseif scope == "GRP" then
+        elseif scope == "trackgroup" then
             --TODO!!!
             --compatibility placeholder with current track return
             return (vader.cursor and vader.cursor.track) or rs.selected_track_index
-        elseif scope == "LIN" then
+        elseif scope == "line" then
             return (vader.cursor and vader.cursor.line) or rs.transport.edit_pos.line
         elseif scope == "column" then
             if rs.selected_note_column_index then
@@ -227,47 +227,47 @@ vader.lex.solve_lookup_table = {
         elseif scope == "effectcolumn" then
             return (vader.cursor and vader.cursor.effect_column) or rs.selected_effect_column_index
             --]]
-        elseif scope == "NOC" then
+        elseif scope == "note_column" then
             return (vader.cursor and vader.cursor.note_column) or rs.selected_note_column_index
-        elseif scope == "EFC" then
+        elseif scope == "effect_column" then
             return (vader.cursor and vader.cursor.effect_column) or rs.selected_effect_column_index
-        elseif scope == "NVA" then
+        elseif scope == "note_value" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").note_value
             end
-        elseif scope == "INS" then
+        elseif scope == "instrument_value" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").instrument_value
             end
-        elseif scope == "VOL" then
+        elseif scope == "volume_value" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").volume_value
             end
-        elseif scope == "PAN" then
+        elseif scope == "panning_value" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").panning_value
             end
-        elseif scope == "DEL" then
+        elseif scope == "delay_value" then
             if rs.selected_note_column == nil then
                 return 0
             else
                 return get_selected("note_column").delay_value
             end
-        elseif scope == "ENU" then
+        elseif scope == "effectnumber" then
             if rs.selected_effect_column == nil then
                 return 0
             else
                 return get_selected("effect_column").number_value
             end
-        elseif scope == "EVA" then
+        elseif scope == "effectamount" then
             if rs.selected_effect_column == nil then
                 return 0
             else
@@ -278,21 +278,21 @@ vader.lex.solve_lookup_table = {
 
     --VALUE MIN
     ["<symbol min>"] = function(scope)
-        if scope == "PAT" then
+        if scope == "pattern" then
             return 1
-        elseif scope == "SEQ" then
+        elseif scope == "sequence" then
             return 1
         elseif scope == "section" then
             --TODO!!
             --compatibility placeholder from sequence
             return 1
-        elseif scope == "TRK" then
+        elseif scope == "track" then
             return 1
-        elseif scope == "GRP" then
+        elseif scope == "trackgroup" then
             --TODO!!
             --compatibility placeholder from track
             return 1
-        elseif scope == "LIN" then
+        elseif scope == "line" then
             return 1
         elseif scope == "column" then
             if rs.selected_note_column_index then
@@ -313,7 +313,7 @@ vader.lex.solve_lookup_table = {
         elseif scope == "effectcolumn" then
             return 1
             --]]
-        elseif scope == "NOC" then
+        elseif scope == "note_column" then
             local is_seq = (rs.selected_track_index < rs.sequencer_track_count)
             local notecol_min
             if is_seq then
@@ -322,22 +322,22 @@ vader.lex.solve_lookup_table = {
                 notecol_min = 0
             end
             return notecol_min
-        elseif scope == "EFC" then
+        elseif scope == "effect_column" then
             return 1
-        elseif scope == "NVA" then
+        elseif scope == "note_value" then
             return 0 
-        elseif scope == "INS" then
+        elseif scope == "instrument_value" then
             return #rs.instruments
-        elseif scope == "VOL" then
+        elseif scope == "volume_value" then
             return 0
-        elseif scope == "PAN" then
+        elseif scope == "panning_value" then
             return 0
-        elseif scope == "DEL" then
+        elseif scope == "delay_value" then
             return 0
-        elseif scope == "ENU" then
+        elseif scope == "effectnumber" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
-        elseif scope == "EVA" then
+        elseif scope == "effectamount" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
         end
@@ -345,21 +345,21 @@ vader.lex.solve_lookup_table = {
 
     --VALUE MAX
     ["<symbol max>"] = function(scope)
-        if scope == "PAT" then
+        if scope == "pattern" then
             return #rs.patterns
-        elseif scope == "SEQ" then
+        elseif scope == "sequence" then
             return #rs.sequencer.pattern_sequence
         elseif scope == "section" then
             --TODO!!
             --compatibility placeholder from sequence
             return #rs.sequencer.pattern_sequence
-        elseif scope == "TRK" then
+        elseif scope == "track" then
             return rs.sequencer_track_count + rs.send_track_count + 1 --the 1 is master
-        elseif scope == "GRP" then
+        elseif scope == "trackgroup" then
             --TODO!!
             --compatibility placeholder from track
             return rs.sequencer_track_count + rs.send_track_count + 1 --the 1 is master
-        elseif scope == "LIN" then
+        elseif scope == "line" then
             return rs.selected_pattern.number_of_lines
         elseif scope == "column" then
             --TODO:this does not always work now! GROUP TRACKS!
@@ -379,28 +379,28 @@ vader.lex.solve_lookup_table = {
             local seq_track=rs:track(1)
             return seq_track.visible_effect_columns --TODO:max no of effect columns
             --]]
-        elseif scope == "NOC" then
+        elseif scope == "note_column" then
             --TODO:this does not always work now! GROUP TRACKS!
             local seq_track=rs:track(1)
             return seq_track.visible_note_columns --TODO:max no of notecolumns
-        elseif scope == "EFC" then
+        elseif scope == "effect_column" then
             --TODO:this does not always work now! GROUP TRACKS!
             local seq_track=rs:track(1)
             return seq_track.visible_effect_columns --TODO:max no of effect columns
-        elseif scope == "NVA" then
+        elseif scope == "note_value" then
             return 119 
-        elseif scope == "INS" then
+        elseif scope == "instrument_value" then
             return #rs.instruments
-        elseif scope == "VOL" then
+        elseif scope == "volume_value" then
             return 127 
-        elseif scope == "PAN" then
+        elseif scope == "panning_value" then
             return 127
-        elseif scope == "DEL" then
+        elseif scope == "delay_value" then
             return 255
-        elseif scope == "ENU" then
+        elseif scope == "effectnumber" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
-        elseif scope == "EVA" then
+        elseif scope == "effectamount" then
             not_implemented("relative values for effect subcolumn data")
             return --TODO: what here?
         end
@@ -408,13 +408,13 @@ vader.lex.solve_lookup_table = {
 
     --VALUE EMPTY
     ["<symbol empty>"] = function(scope)
-        if scope == "PAT" then
+        if scope == "pattern" then
             return "CLEAR_OBJECT"
-        elseif scope == "SEQ" then
+        elseif scope == "sequence" then
             return "CLEAR_OBJECT"
-        elseif scope == "TRK" then
+        elseif scope == "track" then
             return "CLEAR_OBJECT"
-        elseif scope == "LIN" then
+        elseif scope == "line" then
             return "CLEAR_OBJECT"
         elseif scope == "column" then
             --TODO
@@ -442,31 +442,31 @@ vader.lex.solve_lookup_table = {
             --return seq_track.max_effect_columns --TODO:max no of effect columns
             return "CLEAR_OBJECT"
             --]]
-        elseif scope == "NOC" then
+        elseif scope == "note_column" then
             --TODO
             --TODO:this does not always work now! GROUP TRACKS!
             --local seq_track=rs:track(1)
             --return seq_track.max_note_columns --TODO:max no of notecolumns
             return "CLEAR_OBJECT"
-        elseif scope == "EFC" then
+        elseif scope == "effect_column" then
             --TODO:this does not always work now! GROUP TRACKS!
             --TODO
             --local seq_track=rs:track(1)
             --return seq_track.max_effect_columns --TODO:max no of effect columns
             return "CLEAR_OBJECT"
-        elseif scope == "NVA" then
+        elseif scope == "note_value" then
             return 121
-        elseif scope == "INS" then
+        elseif scope == "instrument_value" then
             return 255
-        elseif scope == "VOL" then
+        elseif scope == "volume_value" then
             return 255
-        elseif scope == "PAN" then
+        elseif scope == "panning_value" then
             return 255
-        elseif scope == "DEL" then
+        elseif scope == "delay_value" then
             return 0
-        elseif scope == "ENU" then
+        elseif scope == "effectnumber" then
             return 0
-        elseif scope == "EVA" then
+        elseif scope == "effectamount" then
             return 0
         end
     end,

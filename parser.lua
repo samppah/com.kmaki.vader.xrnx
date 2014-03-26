@@ -1166,10 +1166,10 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
             and not_implemented("Macro part")
 
         --Build scope object for process
-        
         --Explicit values (and some implicit) are built in LPeg parse
         --now build implicit values
-        
+        --
+        --local target_scope = ScopeObject_2(TRG["SCP"])
 
 
     end

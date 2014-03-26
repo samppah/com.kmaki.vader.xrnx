@@ -3245,14 +3245,15 @@ do
                     
                     --Set skip_empty flag and other range extras if needed
                     local this_range_flags = this_partial["SCP_FLG"]
-
                     local this_skip_empty = nil
-                    for index, flag in pairs (this_range_flags) do
-                        --Skip empty flag
-                        if this_range_flags:find_token_type("'") then
-                            this_skip_empty = true
-                        else
-                            this_skip_empty = false
+                    if this_range_flags then
+                        for index, flag in pairs (this_range_flags) do
+                            --Skip empty flag
+                            if this_range_flags:find_token_type("'") then
+                                this_skip_empty = true
+                            else
+                                this_skip_empty = false
+                            end
                         end
                     end
 
@@ -3277,6 +3278,9 @@ do
             end
             
 
+            for _, partial in ipairs(user_partials) do
+                partial:dump()
+            end
             ----> MO got here from ^there
             --Build new ScopeObject_2 class to init a scope from parsed LPeg Table!
 
@@ -3328,12 +3332,10 @@ do
                 --vader.logs.debug:entry("searched level:"..level_name..". No more partials!") --debug
             end
 
-            --[[
             --debug
             for _, partial in ipairs(self.scope) do
                 partial:dump()
             end
-            --]]
 
             --Compute full range from sparse partial definition
             --Need topmost, lowest user defined levels
