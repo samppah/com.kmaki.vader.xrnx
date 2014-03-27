@@ -330,6 +330,15 @@ function process(it_scope, it_content_pack, is_successive_message)
     -- TODO:reformat this. This is outright messy.
     local it_content = it_content_pack.static
     local it_content_tree = it_content_pack.dynamic
+    --Test it_content main type
+    --TODO: fix this. Related to cleaning up the 'content_pack' mess
+    local it_content_type
+    p_data.cnt_type = nil
+    print("*------")
+    print(it_content_pack)
+    print("it_content", it_content)
+    print("it_content_tree", it_content_tree)
+    print("*------")
 
 
     -- Check processing status
@@ -363,10 +372,14 @@ function process(it_scope, it_content_pack, is_successive_message)
     local it_notecol =          it_scope:partial(5)
     local it_effectcol =        it_scope:partial(6)
 
-    --Test it_content main type
-    --TODO: fix this. Related to cleaning up the 'content_pack' mess
-    local it_content_type
-    p_data.cnt_type = nil
+    it_scope:dump()
+    print("-------*")
+    it_pat_trk:dump()
+    it_pat_trk_lin:dump()
+    it_col:dump()
+    it_notecol:dump()
+    it_effectcol:dump()
+    print("-------*")
     if type(it_content) == "number" then
         -- it_content_type = "number"
         p_data.cnt_type = "number"
@@ -374,14 +387,14 @@ function process(it_scope, it_content_pack, is_successive_message)
         --print(it_content)
     elseif it_content_tree then
         --IT STILL COULD BE VALUE EMPTY FOR INSTANCE!
-        if it_content_tree.partial then
+        --if it_content_tree.partial then
             --the tree has a 'partial' method, it's a scope
             --it_content_type = "scope"
             p_data.cnt_type = "scope"
-        else
+        --else
             --it_content_type = "special"
-            p_data.cnt_type = "special"
-        end
+            --p_data.cnt_type = "special"
+        --end
         --print("STARTING PROCESS: DUMP IT_CNT")
         --it_content_tree:dump()
     else

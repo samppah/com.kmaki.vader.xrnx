@@ -489,6 +489,9 @@ vader.lex.solve_lookup_table = {
 vader.lex.songdata_codex = {
     ["sequence"] = {
         ["values"] = {
+            ["current"] = function()
+                return (vader.cursor and vader.cursor.sequence) or rs.selected_sequence_index
+            end,
             ["scale"] = {
                 ["MIN"] = function()
                     return 1
@@ -508,6 +511,9 @@ vader.lex.songdata_codex = {
     },
     ["pattern"] = {
         ["values"] = {
+            ["current"] = function()
+                return (vader.cursor and vader.cursor.pattern) or rs.selected_pattern_index
+            end,
             ["scale"] = {
                 ["MIN"] = function()
                     return 1
@@ -532,6 +538,9 @@ vader.lex.songdata_codex = {
     },
     ["track"] = {
         ["values"] = {
+            ["current"] = function()
+                return (vader.cursor and vader.cursor.track) or rs.selected_track_index
+            end,
             ["scale"] = {
                 ["MIN"] = function()
                     -- Minimum number of tracks in a song
@@ -561,6 +570,9 @@ vader.lex.songdata_codex = {
     },
     ["line"] = {
         ["values"] = {
+            ["current"] = function()
+                return (vader.cursor and vader.cursor.line) or rs.transport.edit_pos.line
+            end,
             ["scale"] = {
                 ["MIN"] = function()
                     -- Minimum number of lines in a pattern
@@ -587,9 +599,21 @@ vader.lex.songdata_codex = {
         end,
     },
     ["column"] = {
+        ["values"] = {
+            ["current"] = function()
+                if rs.selected_note_column_index then
+                    return (vader.cursor and vader.cursor.note_column) or rs.selected_note_column_index
+                else
+                    return (vader.cursor and vader.cursor.effect_column) or rs.selected_effect_column_index --maybe with added the note_col_index?
+                end
+            end
+        }
     },
     ["note_column"] = {
         ["values"] = {
+            ["current"] = function()
+                return (vader.cursor and vader.cursor.note_column) or rs.selected_note_column_index
+            end,
             ["scale"] = {
                 ["MIN"] = function()
                     local pattern_track, track = get_selected("pattern_track")
@@ -618,6 +642,9 @@ vader.lex.songdata_codex = {
     },
     ["effect_column"] = {
         ["values"] = {
+            ["current"] = function()
+                return (vader.cursor and vader.cursor.effect_column) or rs.selected_effect_column_index
+            end,
             ["scale"] = {
                 ["MIN"] = function()
                     local pattern_track, track = get_selected("pattern_track")
@@ -645,6 +672,13 @@ vader.lex.songdata_codex = {
     },
     ["note_value"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_note_column == nil then
+                    return 0
+                else
+                    return get_selected("note_column").note_value
+                end
+            end,
             ["scale"] = {
                 ["MIN"] = function() return 0 end,
                 ["MAX"] = function() return 119 end
@@ -664,6 +698,13 @@ vader.lex.songdata_codex = {
     },
     ["instrument_value"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_note_column == nil then
+                    return 0
+                else
+                    return get_selected("note_column").instrument_value
+                end
+            end,
             ["scale"] = {
                 ["MIN"] = function() return 1 end,
                 ["MAX"] = function() return #rs.instruments end,
@@ -683,6 +724,13 @@ vader.lex.songdata_codex = {
     },
     ["volume_value"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_note_column == nil then
+                    return 0
+                else
+                    return get_selected("note_column").volume_value
+                end
+            end,
             ["scale"] = {
                 ["MIN"] = function() return 0 end,
                 ["MAX"] = function() return 127 end
@@ -702,6 +750,13 @@ vader.lex.songdata_codex = {
     },
     ["panning_value"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_note_column == nil then
+                    return 0
+                else
+                    return get_selected("note_column").panning_value
+                end
+            end,
             ["scale"] = {
                 ["MIN"] = function() return 0 end,
                 ["MAX"] = function() return 127 end
@@ -722,6 +777,13 @@ vader.lex.songdata_codex = {
     },
     ["delay_value"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_note_column == nil then
+                    return 0
+                else
+                    return get_selected("note_column").delay_value
+                end
+            end,
             ["scale"] = {
                 ["MIN"] = function() return 0 end,
                 ["MAX"] = function() return 255 end
@@ -740,6 +802,13 @@ vader.lex.songdata_codex = {
     },
     ["effectnumber"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_effect_column == nil then
+                    return 0
+                else
+                    return get_selected("effect_column").number_value
+                end
+            end,
             ["scale"] = {
                 --The pattern effect range (01 - 0Z)
                 ["MIN"] = function() return 0 end,
@@ -774,6 +843,13 @@ vader.lex.songdata_codex = {
     },
     ["effectamount"] = {
         ["values"] = {
+            ["current"] = function()
+                if rs.selected_effect_column == nil then
+                    return 0
+                else
+                    return get_selected("effect_column").amount_value
+                end
+            end,
             ["scale"] = {
                 ["MIN"] = function() return 0 end,
                 ["MAX"] = function() return 255 end

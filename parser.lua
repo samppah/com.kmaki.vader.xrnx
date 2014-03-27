@@ -1172,24 +1172,86 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
         local target_scope = ScopeObject(TRG["SCP"])
         local content_scope
         local content_exp
-        if CNT then
+        if has_CNT then
             if CNT["SCP"] then
                 content_scope = ScopeObject(CNT["SCP"])
             elseif CNT["EXP"] then
-                content_exp = content_exp 
+                content_exp = CNT["EXP"]
             else
                 vader_error("Content part is not a scope or an expression. But how. ?")
             end
         end
 
 
+    ----------------------------------------
+    -- Global Flags handling
+    --[[
+    if cxt.name == "<glob flg>" then
+        local glob_flg = cxt
+        glob_flg.list:set_property("global flag context")
+        for _, flag in pairs(glob_flg.list.items) do
+            --EXIT
+            if flag.token_type == "<flg exit>" then
+                vader.PROMPT_CLOSE_AFTER_FINISH = true
+            elseif flag.token_type == "<flg exit 2>" then
+                vader.PROMPT_CLOSE_AFTER_FINISH = true
+            elseif flag.token_type == "<flg noexit>" then
+                vader.PROMPT_CLOSE_AFTER_FINISH = false
+            elseif flag.token_type == "<flg noexit 2>" then
+                vader.PROMPT_CLOSE_AFTER_FINISH = false
+            --MOVE
+            elseif flag.token_type == "<flg move>" then
+                vader.PROCESS_MOVE_CURSOR = true
+            elseif flag.token_type == "<flg move 2>" then
+                vader.PROCESS_MOVE_CURSOR = true
+            elseif flag.token_type == "<flg nomove>" then
+                vader.PROCESS_MOVE_CURSOR = false
+            elseif flag.token_type == "<flg nomove 2>" then
+                vader.PROCESS_MOVE_CURSOR = false
+            end
+            --SELECT
+            if flag.token_type == "<flg select>" then
+                vader.PROCESS_MAKE_SELECTION = true
+            elseif flag.token_type == "<flg noselect>" then
+                vader.PROCESS_MAKE_SELECTION = false
+            elseif flag.token_type == "<flg select 2>" then
+                vader.PROCESS_MAKE_SELECTION = true
+            elseif flag.token_type == "<flg noselect 2>" then
+                vader.PROCESS_MAKE_SELECTION = false
+            end
+        end
     end
+    --]]
 
     -- Parse is a success
     parse_log:entry("success.") --debug
 
     -- Get info stored
     vader.logs.main:join_log(parse_log:compress())
+
+
+    -- Setup this message for processing
+    --
+    local new_log_entry = vader.logs.main:entry("process", 1)
+    -- Add to Directives for processing
+    local process_directive = VaderDirective("PROCESS", new_log_entry)
+    local content_pack = {
+        --["static"] = (it_cnt[msg_index] and it_cnt[msg_index].resolved),
+        --["dynamic"] = it_cnt[msg_index]
+        ["static"] = content_exp,
+        ["dynamic"] = content_scope
+    }
+    ----->>>WED: TRYING TO MAKE PROCESSING WORK!
+
+    process_directive:new_argument(target_scope)
+    process_directive:new_argument(content_pack)
+    process_directive:new_argument(is_successive_message)
+    -- PROCESSing must be done before sequential PARSEs,
+    -- so use entry_at instead of entry. This puts the 
+    -- PROCESS-directive first in top of the queue.
+    vader.directives:entry_at(process_directive, #vader.directives)
+
+    end
 
     --Back
     return true
