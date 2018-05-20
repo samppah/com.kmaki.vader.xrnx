@@ -1100,8 +1100,8 @@ vader.lex.scope_levels = {
     }, 
     [6] = {
         ["subcolumn_level_effect"] = {
-            [1] = "effectnumber",
-            [2] = "effectamount",
+            [1] = "effect_number",
+            [2] = "effect_amount",
         }, 
     }, 
 }
@@ -1112,6 +1112,9 @@ vader.lex.directives = {
     -- values, directive names as keys
     -- works together with main.lua's directives_dispatch()
     ["PARSE"] = function(directive)
+        print("getting new vader cursor position___________")
+        vader.cursor:get_all()
+        vader.cursor:dump()
         return parse(directive:arguments())
     end,
     ["PROCESS"] = function(directive)

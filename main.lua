@@ -17,12 +17,6 @@
 
 
 
--- Reload the script whenever this file is saved. 
--- Additionally, execute the attached function.
-_AUTO_RELOAD_DEBUG = function()
-    --nothing
-end
-
 ----------------------------------------------------
 -- Create tool info variables
 ----------------------------------------------------
@@ -392,10 +386,10 @@ local function directives_dispatch()
             error_msg = "syntax error\n\n"..error_msg
         end
 
-	-- Add message to active_task log, and display it according to log display settings
-	vader.logs.active_task:entry(error_msg)
-	-- Add message to error log, and display it according to log display settings
-	vader.logs.errors:entry(error_msg)
+  -- Add message to active_task log, and display it according to log display settings
+  vader.logs.active_task:entry(error_msg)
+  -- Add message to error log, and display it according to log display settings
+  vader.logs.errors:entry(error_msg)
 
     end
 
@@ -520,7 +514,7 @@ local function directives_dispatch()
     end
 
     -- Set processing cursor back to nil
-    vader.cursor = nil
+    -- vader.cursor = nil
 
     -- Reset error type flags for default for following errors
     vader.DEBUG_CRITICAL_ERROR = true
@@ -642,8 +636,8 @@ local function boot_submodules(global_root_node)
     boot_output(global_root_node)
     boot_classes(global_root_node)
     boot_parser(global_root_node)
-    boot_grammar(global_root_node)
     boot_lexicon(global_root_node)
+    boot_grammar(global_root_node)
     boot_process(global_root_node)
     boot_macro(global_root_node)
 end
@@ -661,6 +655,8 @@ build_cmd_prompt_gui()
 link_rs = function()
     rs=renoise.song()
     boot_submodules(vader)
+    -- Init vader.cursor
+    vader.cursor = VaderCursor()
 end
 
 build_notifier(renoise.tool().app_new_document_observable, link_rs)
@@ -729,6 +725,7 @@ vader.flags = renoise.Document.create("Main_flags") {
 -- Init main process list for program control flow
 vader.directives = VaderDirectiveList("Main_directive_list")
 
+
 ----------------------------------------------------
 -- Setup tool Keybindings
 ----------------------------------------------------
@@ -777,6 +774,19 @@ renoise.tool():add_keybinding {
     end
 }
 
+renoise.tool():add_keybinding {
+    name = "Global:" .. vader.TOOL_NAME..":".."debug- update and dump vader.cursor",
+    invoke = function ()
+        if vader.cursor then
+            vader.cursor:get_all()
+            vader.cursor:dump()
+        else
+            print("no vader.cursor available")
+        end
+
+    end
+}
+
 --[[
 renoise.tool():add_keybinding {
     name = "Global:Tools:" .. tool_name.." - Macro hotkey 1",
@@ -808,40 +818,14 @@ renoise.tool():add_keybinding {
 renoise.tool().preferences = vader.preferences
 
 
---------------------------------------------------------Test
---[[
-local testii = TokenStream("testi")
-
-for ii = 1, 10 do
-    --testii:push(Token("tokeni-"..ii))
-    testii:push(Token("tokeni-"..ii, "nappu"))
-end
-
-testoo = TokenStream("haloo")
-
-for ii = 1, 3 do
-    testoo:push(Token("nakkimakkara "..ii, "kilkku"))
-end
-
-traa = TokenTree("traa", testii)
-
-
-traa:branch_by_points({1,5}, {"<ekaprans>", "<tokaprans>", "<kokaprans>"}, {"<ekaprans>","<tokaprans>","<kokaprans>"},"remove")
-
-
---testoo = testii:duplicate()
-
---traa:replace_w_stream("<kinkku>", 1, 1, Token("<hattu>"), testoo)
-
-traa:dump_recursive()
-
-trauau = traa:sub("trauau", 2,5)
-
-print("!!!!")
-trauau:
-dump_recursive()
---]]
 
 if vader.DEBUG_MODE then
     require "developer_test"
+end
+
+
+-- Reload the script whenever this file is saved. 
+-- Additionally, execute the attached function.
+_AUTO_RELOAD_DEBUG = function()
+    link_rs()
 end

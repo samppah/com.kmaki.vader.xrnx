@@ -1120,8 +1120,9 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
 
     --Get LPeg parsed input
     parse_log:entry("Parsing message: '"..input_msg.."' ...") --debug
+--debug.start()
     local parsed_input = match(G.script, input_msg)
-
+--debug.stop()
     --LPEG BRANCH TESTS
     rprint(parsed_input) --print user input parsed in tree format
 
@@ -1169,7 +1170,10 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
         --Explicit values (and some implicit) are built in LPeg parse
         --now build implicit values
         
-        local target_scope = ScopeObject(TRG["SCP"])
+        local target_scope
+        if has_TRG then
+            target_scope = ScopeObject(TRG["SCP"])
+        end
         local content_scope
         local content_exp
         if has_CNT then
@@ -1181,6 +1185,21 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
                 vader_error("Content part is not a scope or an expression. But how. ?")
             end
         end
+
+        --[[
+        if has_TRG then
+            --validate scope
+            --scope shorthand 
+            for _, scopetag in pairs (TRG["SCP"]) do
+                scopetag_string = scopetag["__string"]
+                for __, match_index in pairs (vader.lex.scope_levels) do
+                    
+
+
+                end
+            end
+        end
+        --]]
 
 
     ----------------------------------------

@@ -123,7 +123,7 @@ local function song_data_constrain(value_to_constrain, data_type)
     -- if not constrained, return nothing!
     -- Register in debug
     local constrain_log = ALog("song_data_constrain()", vader.displays.no_display, 0)
-    constrain_log:add_distribute_log(process_log)
+    --constrain_log:add_distribute_log(process_log)
     constrain_log:entry("Checking need to constrain "..data_type.." value")
     -- Error catching
     local data = vader.lex.songdata_codex[data_type]
@@ -348,7 +348,9 @@ function process(it_scope, it_content_pack, is_successive_message)
         -- in a script.
         --
         -- Get starting cursor pos - initialize vader.cursor
-        vader.cursor = VaderCursor()
+        if not vader.cursor then 
+            vader.cursor = VaderCursor()
+        end
     else
         -- if this is a successive message (part of the same script),
         -- use the cursor place where was left in last msg
@@ -412,9 +414,11 @@ function process(it_scope, it_content_pack, is_successive_message)
         not_implemented("Content = a scope")
     elseif p_data.cnt_type == "special" then
         -- Go ahead
+        not_implemented("Content = special")
     elseif p_data.cnt_type == "nothing" then
         -- Go ahead
     else
+        -- Should never happen
         vader_error("Unknown content type:"..(p_data.cnt_type or "nil"))
     end
 
@@ -456,7 +460,7 @@ function process(it_scope, it_content_pack, is_successive_message)
         if is_modify_command then
             static_content_value = it_content
             --dynamic_content_value = (type(it_content_tree) == "TokenTree" and it_content_tree:solve())
-            dynamic_content_value = it_content_tree.partial and it_content_tree:partial(5):solve()
+            dynamic_content_value = it_content_tree and (it_content_tree.partial and it_content_tree:partial(5):solve())
             --TODO: select between the two?
             final_value = dynamic_content_value or static_content_value
             vader_assert(type(final_value) == "number" or type(final_value) == "TokenTree", "Could not resolve a value to apply")

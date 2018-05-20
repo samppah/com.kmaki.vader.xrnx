@@ -2936,7 +2936,7 @@ do
                     local this_end_value
                     if this_range then
                         this_start_value = this_range["BEG_VAL"] and this_range["BEG_VAL"]["EXP"]
-                        this_end_value = this_range["END_VAL"] and this_range["END_VAL"]["EXP"]
+                        this_end_value = this_range["END_VAL"] and this_range["END_VAL"]["EXP"] or this_range["BEG_VAL"] and this_range["BEG_VAL"]["EXP"]
                     end
                     
                     --Set skip_empty flag and other range extras if needed
@@ -2971,6 +2971,8 @@ do
                     vader.logs.debug:entry("collected user partial:"..new_user_partial.name) --debug
 
                     rprint(user_partials)
+                    rprint(new_user_partial)
+                    new_user_partial:dump()
             end
             
 
@@ -3162,14 +3164,16 @@ do
                 else
                     --this is defined by the user
                     --what is this sorcery?
-                    print("WTF")
-                    print("level_partial.origin", level_partial.origin)
+                    --print("WTF")
+                    --print("level_partial.origin", level_partial.origin)
 
+                    --[[
                     local this_range = level_partial.range
 
                     if this_range.start_value and not this_range.end_value then
                         this_range.end_value = this_range.start_value
                     end 
+                    --]]
 
                 end
             end
