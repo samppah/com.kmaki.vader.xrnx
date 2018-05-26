@@ -1,6 +1,6 @@
 --vader grammar lulpeg
 
-local vader = get_tool_root_node()
+local vader = nil
 
 function boot_grammar(main_vader)
     vader = main_vader
@@ -45,7 +45,7 @@ local has_scope = {
 
 local last_expression_solved_value = nil --used for range definitions
 local function set_last_expression_solved_value(value)
-    print("set last expression solved value: "..value)
+    --print("set last expression solved value: "..value)
     last_expression_solved_value = value
 end
 
@@ -226,6 +226,9 @@ local function tonumber_(numberstring)
     --This has to deal with solvables?
     --
     
+    --
+    if not vader then return end --nevermind this before booting
+    
     --Solvables
     local solvables = {
         'p',
@@ -252,10 +255,8 @@ local function tonumber_(numberstring)
 
         local solver = require("solver")
 
-        --[[
         print ("tonumber_ is going to solve string:" .. (numberstring or "nil") .. " within context:")
         rprint (context)
-        --]]
         local exp = solve(numberstring, context)
         set_last_expression_solved_value(exp)
         return last_expression_solved_value

@@ -422,25 +422,6 @@ function process(it_scope, it_content_pack, is_successive_message)
         vader_error("Unknown content type:"..(p_data.cnt_type or "nil"))
     end
 
-    --[[
-    --TODO:not used
-    --Get composite lowest if it_content_is scope
-    local composite_lowest_index = nil
-    local composite_lowest_name = nil
-    if it_content_type == "scope" then
-        if it_content_tree.lowest_index > it_scope.lowest_index then
-            composite_lowest_index = it_content_tree.lowest_index
-            composite_lowest_name = it_content_tree.lowest_name
-        end
-    end
-
-    --Create apply_value table if it_content is scope
-    ----TODO: this is actually not used. Is it?
-    local cnt_stuff = IterationTable()
-    if p_data.cnt_type == "scope" then
-        cnt_stuff.method = "patterns" --TODO
-    end
-    --]]
 
     ----------------------------------------
     --THE INNER LOOPS
@@ -451,6 +432,7 @@ function process(it_scope, it_content_pack, is_successive_message)
     --They're not generalized further, because some
     --levels need special handling methods. They are,
     --however very similar to each other.
+    
     local function note_columns_subcol_loop()
         -----
         local static_content_value

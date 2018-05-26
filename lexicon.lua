@@ -54,6 +54,7 @@ local function get_selected(type)
     local c = vader.cursor
 
     --TODO:this is not used.
+    --[[
     local function note_or_effect_col(selected_sub_column_type)
         local sub_col_type = renoise.song().selected_sub_column_type 
         --TODO: how does vader.cursor relate to all this?
@@ -65,12 +66,11 @@ local function get_selected(type)
             return "note_column"
         else
             return "effect_column"
-            --[[
-            renoise.Song.SUB_COLUMN_EFFECT_NUMBER
-            renoise.Song.SUB_COLUMN_EFFECT_AMOUNT
-            --]]
+            --renoise.Song.SUB_COLUMN_EFFECT_NUMBER
+            --renoise.Song.SUB_COLUMN_EFFECT_AMOUNT
         end
     end
+    --]]
 
     if level > 0 then
         this_pat = rs:pattern((c and c.pattern) or rs.selected_pattern_index)
@@ -507,8 +507,10 @@ vader.lex.songdata_codex = {
             }
         }
     },
+    --[[
     ["section"] = {
     },
+    --]]
     ["pattern"] = {
         ["values"] = {
             ["current"] = function()
@@ -566,8 +568,10 @@ vader.lex.songdata_codex = {
             --TODO: return value?
         end,
     },
+    --[[
     ["group"] = {
     },
+    --]]
     ["line"] = {
         ["values"] = {
             ["current"] = function()
@@ -748,7 +752,7 @@ vader.lex.songdata_codex = {
             --TODO: return value?
         end,
     },
-    ["panning_value"] = {
+    ["pan_value"] = {
         ["values"] = {
             ["current"] = function()
                 if rs.selected_note_column == nil then
