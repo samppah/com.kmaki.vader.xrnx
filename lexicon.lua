@@ -30,7 +30,7 @@ end
 -- Data retrieving functions and data
 ----------------------------------------------------
 
-local function get_selected(type)
+local function get_selected(get_type)
     --this helper function returns selected songdata objects
     --type:pattern,pattern_track,pattern_track_line,note_column,effect_column)
     local valid_type = {
@@ -40,8 +40,8 @@ local function get_selected(type)
         "note_column",
         "effect_column",
     }
-    local level = table.find(valid_type, type)
-    assert (level, "Invalid song data object type: "..type.." , cannot get reference")
+    local level = table.find(valid_type, get_type)
+    assert (level, "Invalid song data object type: "..get_type.." , cannot get reference")
 
     local object_to_return
     local second_object_to_return
@@ -72,6 +72,7 @@ local function get_selected(type)
     end
     --]]
 
+    --if c then c:dump() end
     if level > 0 then
         this_pat = rs:pattern((c and c.pattern) or rs.selected_pattern_index)
         if level > 1 then
@@ -80,10 +81,10 @@ local function get_selected(type)
             if level > 2 then
                 this_pattrackline = this_pattrack:line((c and c.line) or rs.transport.edit_pos.line)
                 if level > 3 then
-                    if type == "effect_column" then
+                    if get_type == "effect_column" then
                         this_col = this_pattrackline:effect_column((c and c.effect_column) or rs.selected_effect_column_index)
                     else
-                        --type == "note_column"
+                        --get_type == "note_column"
                         this_col = this_pattrackline:note_column((c and c.note_column) or rs.selected_note_column_index)
                     end
                     object_to_return = this_col
@@ -95,6 +96,7 @@ local function get_selected(type)
                 --level = 2
                 object_to_return = this_pattrack
                 second_object_to_return = this_track
+                print("this track visible note columns: "..this_track.visible_note_columns)
             end
         else
             --level = 1
@@ -625,6 +627,7 @@ vader.lex.songdata_codex = {
                 end,
                 ["MAX"] = function()
                     --TODO:return number of visible note columns
+                    print ("HERE BOYYE!!!!!!!!!!!!!!!!!!!")
                     local pattern_track, track = get_selected("pattern_track")
                     return track.visible_note_columns
                 end,
@@ -1116,7 +1119,7 @@ vader.lex.directives = {
     -- values, directive names as keys
     -- works together with main.lua's directives_dispatch()
     ["PARSE"] = function(directive)
-        print("getting new vader cursor position___________")
+        print("getting new vader cursor position before PARSE directive___________")
         vader.cursor:get_all()
         vader.cursor:dump()
         return parse(directive:arguments())

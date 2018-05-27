@@ -62,9 +62,8 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
 
     --Get LPeg parsed input
     parse_log:entry("Parsing message: '"..input_msg.."' ...") --debug
---debug.start()
     local parsed_input = match(G.script, input_msg)
---debug.stop()
+
     --LPEG BRANCH TESTS
     rprint(parsed_input) --print user input parsed in tree format
 
@@ -141,7 +140,7 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
     vader.logs.main:join_log(parse_log:compress())
 
 
-    -- Setup this message for processing
+    -- Setup this message as a directive for processing
     --
     local new_log_entry = vader.logs.main:entry("process", 1)
     -- Add to Directives for processing
@@ -152,7 +151,6 @@ function parse(input_msg, parse_recursion_level, is_successive_message)
         ["static"] = content_exp,
         ["dynamic"] = content_scope
     }
-    ----->>>WED: TRYING TO MAKE PROCESSING WORK!
 
     process_directive:new_argument(target_scope)
     process_directive:new_argument(content_pack)

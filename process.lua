@@ -282,8 +282,9 @@ local function level_terminal(data_root, it_scope, it_content, inner_function)
             vader.lex.songdata_codex[data_root.partial_trg.name].set_empty(data_root.trg_o)
             --p_data.pattern.trg_o:clear()
         elseif p_data.cnt_type == "number" then
+            --TODO: this is not right
             --copy from pattern index
-            not_implemented("index based copy")
+            -- not_implemented("index based copy")
         elseif p_data.cnt_type == "scope" then
             --copy from scope index
             not_implemented("scope based copy")

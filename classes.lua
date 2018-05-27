@@ -2895,14 +2895,14 @@ do
             local processing_error
             local processing_notes = table.create()
 
-            --Get all scope partials from this context in a table
+            --Get all scope partials defined by user from this context in a table
             local user_partials = table.create()
                 
             --Loop over all SCP_XXX keys in SCP
             --index will be SCP_XXX, this_partial will be the subtable
             for index, this_partial in pairs(parsed_table) do
                     --Get scope
-                    --Find scopetags
+                    --Find scopetags defined by user
                     local this_scope = nil
 
                     --Method: run through subkeys in this scope partial,
@@ -2930,7 +2930,8 @@ do
                     end
 
                     vader_assert(this_scope, "Could not find a scopetag in parsed scope table.")
-                    --Define range specs
+
+                    --Define range specs defined by user
                     local this_range = this_partial["RNG_DEF"]
                     local this_start_value
                     local this_end_value
@@ -2939,7 +2940,7 @@ do
                         this_end_value = this_range["END_VAL"] and this_range["END_VAL"]["EXP"] or this_range["BEG_VAL"] and this_range["BEG_VAL"]["EXP"]
                     end
                     
-                    --Set skip_empty flag and other range extras if needed
+                    --Set skip_empty flag and other range extras set by user if needed
                     local this_range_flags = this_partial["SCP_FLG"]
                     local this_skip_empty = nil
                     if this_range_flags then
@@ -2991,28 +2992,27 @@ do
                 end
                 return nil
             end
+
             for level_index, level in ipairs(vader.lex.scope_levels) do
                 --This loop runs through vader.lex.scope_levels and
                 --selects the topmost of all user inputted partials within a scope level [n]
                 --for each level, sets either the default scope[n].name or the user inputted scope[n].name
-                --also sets the scope[n].origin property
+                --also sets the scope[n].origin property (user / parser)
                 
                 --Get the level name
                 local level_name
                 for name, _ in pairs(level) do
                     level_name = name
                 end
+
                 --Run through items in level table
                 for scope_index, scope_name in ripairs(level[level_name]) do
                     local defined_partial = select_partial(scope_name)
                     local default_partialstring = level[level_name][1]
                     --vader.logs.debug:entry("searching scope:"..scope_name) --debug
                     if defined_partial then
-                        --TODO:here is some fishy business: why is the first one
-                        --defining .level and the second one .name ???
                         self.scope[level_index] = defined_partial
                         self.scope[level_index].level = level_name
-                        --self.scope[level_index].name = defined_partialstring
                         self.scope[level_index].origin = "user"
                         break
                     else
@@ -3020,7 +3020,6 @@ do
                         self.scope[level_index].origin = "parser"
                     end
                 end
-                --vader.logs.debug:entry("searched level:"..level_name..". No more partials!") --debug
             end
 
             --Compute full range from sparse partial definition
@@ -3032,6 +3031,7 @@ do
                     topmost_name = scope_level.name
                     topmost_index = scope_level_index
                     --vader.logs.debug:entry("topmost found:"..topmost_name) --debug
+                    print ("topmost partial in scope: "..topmost_name.." (level "..topmost_index..")")
                     break
                 end
             end
@@ -3046,6 +3046,7 @@ do
                     lowest_name = scope_level.name
                     lowest_index = scope_level_index
                     --vader.logs.debug:entry("lowest found:"..lowest_name) --debug
+                    print ("lowest partial in scope: "..lowest_name.." (level "..lowest_index..")")
                     break
                 end
             end
@@ -3061,17 +3062,11 @@ do
 
             --Now haz calculated topmost, lowest defined ranges. Make rest up
             vader.logs.debug:entry("defined lowest:"..lowest_name.." / "..lowest_index..", topmost:"..topmost_name.."  /  "..topmost_index)
-                    print("OHHHH DOWN ON THE RANGE!")
 
             for level_index, level_partial in ipairs(self.scope) do
                 --This loops creates parser generated 'ghost' ranges for the scope
-                    print("GOHHHH DOWN ON THE RANGE!")
-                    print("level_partial", level_partial)
-                    print("level_index", level_index)
                 --TODO: must assign only one subcolumn value, preference is from column level
                 if level_index < topmost_index then
-                    print("LOHHHH DOWN ON THE RANGE!")
-                    print("topmost_index", topmost_index)
                     --level index is above topmost
                     --apply 'current' range
                     --vader.logs.debug:entry(level_partial.name)
@@ -3087,7 +3082,7 @@ do
                     --]]
 
                     this_range.start_value = vader.lex.songdata_codex[level_partial.name]["values"]["current"]()
-                    print("this_range.start_value ", this_range.start_value )
+                    --print("this_range.start_value ", this_range.start_value )
                     if not this_range.start_value then
                         return false, processing_error, nil
                         --[[
@@ -3103,8 +3098,6 @@ do
                     this_range:dump()
                     
                 elseif level_index > lowest_index then
-                    print("D/OHHHH DOWN ON THE RANGE!")
-                    print("lowest_index", lowest_index)
                     --level index is below lowest_index
                     --apply '<no_range>' -range
                     --vader.logs.debug:entry(level_partial.name)
@@ -3113,24 +3106,14 @@ do
                     this_range.end_value = nil
 
                 elseif level_partial.origin == "parser" then
-                    print("DD/OHHHH DOWN ON THE RANGE!")
                     --level index is between topmost and lowest
                     --and is not defined by user
                     --apply 'each and every' -range
                     --vader.logs.debug:entry(level_partial.name)
                     local this_range = level_partial.range
 
-                    --[[
-                    local solve_stream = TokenStream("solve_stream")
-                    local solve_atom = TokenTree("solve_atom", solve_stream)
-                    solve_atom.scope = level_partial.name
-                    solve_stream:push(Token("<symbol min>", "<symbol min>"))
-                    local notes
-                    this_range.start_value, processing_error, notes = solve_lookup(solve_atom)
-                    --]]
-
                     this_range.start_value = vader.lex.songdata_codex[level_partial.name]["values"]["scale"]["MIN"]()
-                    print("this_range.start_value", this_range.start_value)
+                    print("parser generating range for "..level_partial.name.." this_range.start_value", this_range.start_value)
                     if not this_range.start_value then
                         return false, processing_error, nil
                         --[[
@@ -3141,16 +3124,8 @@ do
                         --]]
                     end
 
-                    --[[
-                    local solve_stream = TokenStream("solve_stream")
-                    local solve_atom = TokenTree("solve_atom", solve_stream)
-                    solve_atom.scope = level_partial.name
-                    solve_stream:push(Token("<symbol max>", "<symbol max>"))
-                    local notes
-                    this_range.end_value, processing_error, notes = solve_lookup(solve_atom)
-                    --]]
                     this_range.end_value = vader.lex.songdata_codex[level_partial.name]["values"]["scale"]["MAX"]()
-                    print("this_range.end_value ", this_range.end_value )
+                    print("parser generating range for "..level_partial.name.." this_range.end_value ", this_range.end_value )
                     if not this_range.end_value then
                         return false, processing_error, nil
                         --[[
@@ -3183,7 +3158,7 @@ do
 
         else
             --no context_tree supplied.
-            vader.logs.debug:entry("Some weird shit happ'nin, boss")
+            vader.logs.debug:entry("Some weird shit happ'nin, boss. No parsed table for ScopeObject:__init().")
             return self, nil, processing_notes
         end
     end

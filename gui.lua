@@ -101,7 +101,7 @@ local function pass_msg(msg)
     -- Add to Directives for parsing
     local parse_directive = VaderDirective("PARSE", new_log_entry)
     parse_directive:new_argument(msg)
-    vader.directives:entry(parse_directive)
+    vader.directives:entry(parse_directive) --add directive to list and trigger "directives_trigger()" in main
     -- Reset prompt
     clear_cmd_prompt()
 end

@@ -227,17 +227,23 @@ local function tonumber_(numberstring)
     --
     
     --
-    if not vader then return end --nevermind this before booting
+    if not vader then 
+        print("booting, ignoring tonumber_()")
+        return
+    end --nevermind this before booting
     
+    print("executing tonumber_()")
     --Solvables
     local solvables = {
         'p',
         't',
         'l',
-        'n',
         'c',
+        'n',
+        'e',
         'v',
         'd',
+        'a',
         '_',
         '"',
         '='
@@ -251,7 +257,9 @@ local function tonumber_(numberstring)
         end
     end
 
+    print ("tonumber_() defining type of string to solve for string: '"..numberstring.."' of type: "..type(numberstring))
     if issolvable then
+        print ("tonumber_() defined type of said string as SOLVABLE")
 
         local solver = require("solver")
 
@@ -263,11 +271,13 @@ local function tonumber_(numberstring)
 
     --note values
     elseif string.sub(numberstring, 1, 2) == "0n" then
+        print ("tonumber_() defined type of said string as NOTESTRING")
         set_last_expression_solved_value(note_convert(string.sub(numberstring, 3)))
         return last_expression_solved_value
 
     --everything else
     else
+        print ("tonumber_() defined type of said string as NUMBER")
         set_last_expression_solved_value(tonumber(numberstring))
         return last_expression_solved_value
     end
@@ -301,7 +311,7 @@ do
     +   (P'OFF')
     +   (P'---')
 
-    G.internal = C(S'ptlncvd' + S'_"') --"solvables" note that "=" is reserved for internal calls.
+    G.internal = C(S'ptlcnevda' + S'_"') --"solvables" note that "=" is reserved for internal calls.
 
     G.value = Cmt(C(G.hex + G.notevalue + G.float + G.internal) / tonumber_ * G.ws, function(a,b,c)
         set_last_expression_solved_value(c)
@@ -461,10 +471,9 @@ do
                     * Cg(
                         G.rng_sep
                         * Ct(
-                                Cg(
-                                    Cmt(Cc(tonumber_('"')),function(subject, pos, val) print("defining range for-------------->>>"..(context[3] or "nil")) return true, val end)
-                                    --Cc(tonumber_('"'))
-                                , "EXP")
+                            Cg(
+                                Cc('"')/tonumber_
+                            , "EXP")
                             )
                     , "END_VAL")
 
@@ -476,7 +485,7 @@ do
                     * Cg(
                         Ct(
                             Cg(
-                                Cc(tonumber_('='))
+                                Cc('=')/tonumber_
                             , "EXP")
                             )
                     , "BEG_VAL")
@@ -486,9 +495,11 @@ do
                     +Cg(
                         Cmt(
                             G.expression, function(a,b,c)
+                                --print("BEG VAL (=END VAL)")
                                 return true, c
                             end)
                     , "BEG_VAL")
+
                     * Cg(
                         Ct(
                             Cg(
@@ -679,14 +690,14 @@ do
                     Cg( 
                         Ct(
                             Cg(
-                                Cc(tonumber_('_'))
+                                Cc('_')/tonumber_
                             , "EXP")
                         )
                     , "BEG_VAL")
                     * Cg(
                         Ct(
                             Cg(
-                                Cc(tonumber_('"'))
+                                Cc('"')/tonumber_
                             , "EXP")
                             )
                     , "END_VAL")
@@ -704,14 +715,14 @@ do
                     Cg( 
                         Ct(
                             Cg(
-                                Cc(tonumber_('_'))
+                                Cc('_')/tonumber_
                             , "EXP")
                         )
                     , "BEG_VAL")
                     * Cg(
                         Ct(
                             Cg(
-                                Cc(tonumber_('"'))
+                                Cc('"')/tonumber_
                             , "EXP")
                             )
                     , "END_VAL")
@@ -723,8 +734,6 @@ do
 
             --A single scopetag + range + maybe flags
             + Ct(scopetag_name.single
-
-                --* (G.rangedef_maybe_in_parentheses)
 
                 * G:get_range_definition_for_scopepartial()
 
@@ -742,14 +751,14 @@ do
                     Cg( 
                         Ct(
                             Cg(
-                                Cc(tonumber_('='))
+                                Cc('=')/tonumber_
                             , "EXP")
                         )
                     , "BEG_VAL")
                     * Cg(
                         Ct(
                             Cg(
-                                Cc(tonumber_('='))
+                                Cc('=')/tonumber_
                             , "EXP")
                             )
                     , "END_VAL")

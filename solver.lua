@@ -91,20 +91,19 @@ function solve(string, context)
     --]]
 
     local partial = context[3]
-    --[[
+
     print("function:solve(string, context)")
     print("string = " .. (string or "nil/false"))
     print("context = " .. (context[3] or "nil/false"))
     if context then
         rprint(context)
     end
-    --]]
 
     if partial == "nothing" then
         vader_error("partial == 'nothing' in solve()")
     end
 
-    if string.find("ptlncvd", string) then
+    if string.find("qptlcnevda", string) then
         return songdata_codex[partial]["values"]["current"]()
     --[[
 

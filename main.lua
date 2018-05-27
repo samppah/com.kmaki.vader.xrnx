@@ -252,6 +252,7 @@ function get_tool_root_node()
     -- Pass vader reference
     return vader
 end
+
 require "classes"
 require "output"
 require "gui"
@@ -600,16 +601,13 @@ end
 
 function directives_trigger()
     --[[
-    This is called when the vader.flags.pending_toggle -value is ALTERED.
-
-    NOTE:
-    NO IT IS NOT! THAT'S OLD INFO. THAT MAKES ROOM FOR
-    NOTIFIER FEEDBACK LOOP. OR. WAIT... IS IT?
-    TODO:Sort this mess out.
+    This is called by a VaderDirectiveList -object when
+    a directive is added into its list with no "hold_boolean"
+    value
 
     This further evaluates need to dispatch
-
     --]]
+
     if #vader.directives == 0 then
         -- false alarm (log this?) TODO
         return false
