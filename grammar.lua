@@ -228,11 +228,11 @@ local function tonumber_(numberstring)
     
     --
     if not vader then 
-        print("booting, ignoring tonumber_()")
+        --print("booting, ignoring tonumber_()")
         return
     end --nevermind this before booting
     
-    print("executing tonumber_()")
+    --print("executing tonumber_()")
     --Solvables
     local solvables = {
         'p',
@@ -244,6 +244,8 @@ local function tonumber_(numberstring)
         'v',
         'd',
         'a',
+        'f',
+        'x',
         '_',
         '"',
         '='
@@ -257,13 +259,13 @@ local function tonumber_(numberstring)
         end
     end
 
-    print ("tonumber_() defining type of string to solve for string: '"..numberstring.."' of type: "..type(numberstring))
+    --print ("tonumber_() defining type of string to solve for string: '"..numberstring.."' of type: "..type(numberstring))
     if issolvable then
-        print ("tonumber_() defined type of said string as SOLVABLE")
+        --print ("tonumber_() defined type of said string as SOLVABLE")
 
         local solver = require("solver")
 
-        print ("tonumber_ is going to solve string:" .. (numberstring or "nil") .. " within context:")
+        --print ("tonumber_ is going to solve string:" .. (numberstring or "nil") .. " within context:")
         rprint (context)
         local exp = solve(numberstring, context)
         set_last_expression_solved_value(exp)
@@ -271,13 +273,13 @@ local function tonumber_(numberstring)
 
     --note values
     elseif string.sub(numberstring, 1, 2) == "0n" then
-        print ("tonumber_() defined type of said string as NOTESTRING")
+        --print ("tonumber_() defined type of said string as NOTESTRING")
         set_last_expression_solved_value(note_convert(string.sub(numberstring, 3)))
         return last_expression_solved_value
 
     --everything else
     else
-        print ("tonumber_() defined type of said string as NUMBER")
+        --print ("tonumber_() defined type of said string as NUMBER")
         set_last_expression_solved_value(tonumber(numberstring))
         return last_expression_solved_value
     end
@@ -311,7 +313,8 @@ do
     +   (P'OFF')
     +   (P'---')
 
-    G.internal = C(S'ptlcnevda' + S'_"') --"solvables" note that "=" is reserved for internal calls.
+    G.scopetags = S'ptlcnevdafx'
+    G.internal = C(G.scopetags + S'_"') --"solvables" note that "=" is reserved for internal calls.
 
     G.value = Cmt(C(G.hex + G.notevalue + G.float + G.internal) / tonumber_ * G.ws, function(a,b,c)
         set_last_expression_solved_value(c)
@@ -546,16 +549,14 @@ do
                 upper = Cg(Ct(Cg((P'Q' * G.ws), "_string")), "sequence")
                 *Cmt(Cc(""), function() context[3] = "sequence" return true end),
             },
-            --[[
-            section = {
-                single = Cg(Ct(Cg((P'c'), "_string")), "section")
-                *Cmt(Cc(""), function() context[3] = "section" return true end),
-                double = Cg(Ct(Cg((P'cc'), "_string")), "section")
-                *Cmt(Cc(""), function() context[3] = "section" return true end),
-                upper = Cg(Ct(Cg((P'C'), "_string")), "section")
-                *Cmt(Cc(""), function() context[3] = "section" return true end),
-            },
-            --]]
+            --section = {
+            --    single = Cg(Ct(Cg((P'c'), "_string")), "section")
+            --    *Cmt(Cc(""), function() context[3] = "section" return true end),
+            --    double = Cg(Ct(Cg((P'cc'), "_string")), "section")
+            --    *Cmt(Cc(""), function() context[3] = "section" return true end),
+            --    upper = Cg(Ct(Cg((P'C'), "_string")), "section")
+            --    *Cmt(Cc(""), function() context[3] = "section" return true end),
+            --},
         },
         track_level = {
             track = {
@@ -566,16 +567,14 @@ do
                 upper = Cg(Ct(Cg((P'T' * G.ws), "_string")), "track")
                 *Cmt(Cc(""), function() context[3] = "track" return true end),
             },
-            --[[
-            group = {
-                single = Cg(Ct(Cg((P'g'), "_string")), "group")
-                *Cmt(Cc(""), function() context[3] = "group" return true end),
-                double = Cg(Ct(Cg((P'gg'), "_string")), "group")
-                *Cmt(Cc(""), function() context[3] = "group" return true end),
-                upper = Cg(Ct(Cg((P'G'), "_string")), "group")
-                *Cmt(Cc(""), function() context[3] = "group" return true end),
-            },
-            --]]
+            --group = {
+            --    single = Cg(Ct(Cg((P'g'), "_string")), "group")
+            --    *Cmt(Cc(""), function() context[3] = "group" return true end),
+            --    double = Cg(Ct(Cg((P'gg'), "_string")), "group")
+            --    *Cmt(Cc(""), function() context[3] = "group" return true end),
+            --    upper = Cg(Ct(Cg((P'G'), "_string")), "group")
+            --    *Cmt(Cc(""), function() context[3] = "group" return true end),
+            --},
         },
         line_level = {
             line = {
@@ -707,7 +706,7 @@ do
             * (G.scopeflags)^-1)
 
 
-            --An upper scopetag
+            --An upper scopetag + possible flags
             + Ct(scopetag_name.upper
 
             * Cg(
@@ -715,14 +714,22 @@ do
                     Cg( 
                         Ct(
                             Cg(
-                                Cc('_')/tonumber_
+                                Cmt(
+                                    Cc('_')/tonumber_, function (a,b,c)
+                                        return true, c
+                                    end
+                                )
                             , "EXP")
                         )
                     , "BEG_VAL")
                     * Cg(
                         Ct(
                             Cg(
-                                Cc('"')/tonumber_
+                                Cmt(
+                                    Cc('"')/tonumber_, function (a,b,c)
+                                        return true, c
+                                    end
+                                )
                             , "EXP")
                             )
                     , "END_VAL")
@@ -732,14 +739,15 @@ do
             * (G.scopeflags)^-1)
 
 
-            --A single scopetag + range + maybe flags
-            + Ct(scopetag_name.single
+            
+
+            --A single scopetag + range (except when range starts with a scopetag) + maybe flags
+            + (Ct(scopetag_name.single 
 
                 * G:get_range_definition_for_scopepartial()
 
                 * (G.scopeflags)^-1
-            )
-
+            ) - (scopetag_name.single * G.scopetags * G.ws))
 
 
 
@@ -751,14 +759,22 @@ do
                     Cg( 
                         Ct(
                             Cg(
-                                Cc('=')/tonumber_
+                                Cmt(
+                                    Cc('=')/tonumber_, function (a,b,c)
+                                        return true, c
+                                    end
+                                    )
                             , "EXP")
                         )
                     , "BEG_VAL")
                     * Cg(
                         Ct(
                             Cg(
-                                Cc('=')/tonumber_
+                                Cmt(
+                                    Cc('=')/tonumber_, function (a,b,c)
+                                        return true, c
+                                    end
+                                    )
                             , "EXP")
                             )
                     , "END_VAL")
@@ -766,6 +782,9 @@ do
             , "RNG_DEF")
 
             * (G.scopeflags)^-1)
+
+
+
 
 
         return p
@@ -789,10 +808,6 @@ do
     function G:get_levelpartial(scopepartial_level)
         local levelpartial
         for partial, pattern in pairs(scopepartial_level) do
-
-            --print("debug: ")
-            --print(partial)
-            --print(pattern)
 
             if not levelpartial then
                 --first rule
